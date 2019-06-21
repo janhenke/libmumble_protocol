@@ -3,7 +3,6 @@
 //
 
 #include <cstdint>
-#include <experimental/propagate_const>
 #include <memory>
 
 #include "mumble_client_protocol_export.h"
@@ -21,7 +20,7 @@ namespace mumble_client::protocol::voice {
 
 	private:
 		struct impl;
-		std::experimental::propagate_const<std::unique_ptr<impl>> pImpl;
+		std::unique_ptr<impl> pImpl;
 	};
 
 	std::size_t decode_varint(int64_t &result, const uint8_t *data);
