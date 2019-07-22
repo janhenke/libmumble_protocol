@@ -28,4 +28,4 @@ endif ()
 target_include_directories(mumble_client_protocol
                            PRIVATE ${Protobuf_INCLUDE_DIRS})
 target_link_libraries(mumble_client_protocol
-                      PRIVATE protobuf::libprotobuf-lite)
+                      PRIVATE protobuf::libprotobuf)
