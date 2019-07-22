@@ -15,72 +15,59 @@ namespace mumble_client::protocol::voice {
 	ping_packet::~ping_packet() = default;
 
 
-	int64_t decode_varint(const uint8_t **data_ptr) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
+	size_t decode_varint(int64_t &result, const uint8_t *data) {
 
-		auto data = *data_ptr;
-		int64_t result = 0;
+		result = 0;
 
-		if ((*data & 0x80) == 0x00) {
-			result = *data & 0x7f;
-		} else if ((*data & 0xc0) == 0x80) {
-			result = (*data & 0x3f) << 8;
-			data++;
-			result |= *data;
-		} else if ((*data & 0xe0) == 0xc0) {
-			result = (*data & 0x1f) << 16;
-			++data;
-			result |= *data << 8;
-			++data;
-			result |= *data;
-		} else if ((*data & 0xf0) == 0xe0) {
-			result = (*data & 0x0f) << 24;
-			++data;
-			result |= *data << 16;
-			++data;
-			result |= *data << 8;
-			++data;
-			result |= *data;
-		} else if ((*data & 0xf0) == 0xf0) {
-			switch (*data & 0xfc) {
+		if ((data[0] & 0x80) == 0x00) {
+			result = data[0] & 0x7f;
+			return 1;
+		} else if ((data[0] & 0xc0) == 0x80) {
+			result = (data[0] & 0x3f) << 8;
+			result |= data[1];
+			return 2;
+		} else if ((data[0] & 0xe0) == 0xc0) {
+			result = (data[0] & 0x1f) << 16;
+			result |= data[1] << 8;
+			result |= data[2];
+			return 3;
+		} else if ((data[0] & 0xf0) == 0xe0) {
+			result = (data[0] & 0x0f) << 24;
+			result |= data[1] << 16;
+			result |= data[2] << 8;
+			result |= data[3];
+			return 4;
+		} else if ((data[0] & 0xf0) == 0xf0) {
+			size_t offset = 0;
+			switch (data[0] & 0xfc) {
 				case 0xf0:
-					++data;
-					result = *data << 24;
-					++data;
-					result |= *data << 16;
-					++data;
-					result |= *data << 8;
-					++data;
-					result |= *data;
-					break;
+					result = data[1] << 24;
+					result |= data[2] << 16;
+					result |= data[3] << 8;
+					result |= data[4];
+					return 5;
 				case 0xf4:
-					++data;
-					result = static_cast<uint64_t >(*data) << 56;
-					++data;
-					result |= static_cast<uint64_t >(*data) << 48;
-					++data;
-					result |= static_cast<uint64_t >(*data) << 40;
-					++data;
-					result |= static_cast<uint64_t >(*data) << 32;
-					++data;
-					result |= *data << 24;
-					++data;
-					result |= *data << 16;
-					++data;
-					result |= *data << 8;
-					++data;
-					result |= *data;
-					break;
+					result = static_cast<uint64_t >(data[1]) << 56;
+					result |= static_cast<uint64_t >(data[2]) << 48;
+					result |= static_cast<uint64_t >(data[3]) << 40;
+					result |= static_cast<uint64_t >(data[4]) << 32;
+					result |= data[5] << 24;
+					result |= data[6] << 16;
+					result |= data[7] << 8;
+					result |= data[8];
+					return 9;
 				case 0xf8:
-					++data;
-					result = -1 * decode_varint(&data);
-					break;
+					offset = decode_varint(result, &data[1]);
+					result = ~result;
+					return offset + 1;
 				case 0xfc:
-					result = ~(+data & 0x03);
-					break;
+					result = ~(data[0] & 0x03);
+					return 1;
 			}
 		}
-
-		++data;
-		return result;
+		return 1;
 	}
+#pragma clang diagnostic pop
 }

@@ -23,7 +23,7 @@ namespace mumble_client::protocol::voice {
 		std::unique_ptr<impl> pImpl;
 	};
 
-	int64_t decode_varint(const uint8_t **data);
+	size_t decode_varint(int64_t &result, const uint8_t *data);
 }
 
 #endif //LIBMUMBLE_CLIENT_VOICE_DATA_HPP
