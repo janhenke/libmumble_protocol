@@ -2,6 +2,7 @@
 // Created by jan on 20.06.19.
 //
 
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 
@@ -23,7 +24,9 @@ namespace mumble_client::protocol::voice {
 		std::unique_ptr<impl> pImpl;
 	};
 
-	size_t decode_varint(int64_t &result, const uint8_t *data);
+	std::byte *decode_varint(std::byte *start, const std::byte *limit, int64_t &result);
+
+	std::byte *encode_varint(std::byte *start, const std::byte *limit, int64_t value);
 }
 
 #endif //LIBMUMBLE_CLIENT_VOICE_DATA_HPP
