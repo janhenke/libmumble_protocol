@@ -8,7 +8,8 @@ protobuf_generate_cpp(MUMBLE_PROTOBUF_SOURCE_FILES MUMBLE_PROTOBUF_HEADER_FILES 
 
 add_library(mumble_client_protocol
             SHARED
-            voice_data.cpp
+            control.cpp
+            voice.cpp
             ${MUMBLE_PROTOBUF_SOURCE_FILES})
 generate_export_header(mumble_client_protocol)
 # for both the generated protobuffer and the export header files

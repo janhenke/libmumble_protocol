@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.13)
 project(libmumble_client VERSION 0.0.1)
 
-# compile for C++17 without compiler extensions
-set(CMAKE_CXX_STANDARD 17)
+# compile for C++20 without compiler extensions
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # compile for C11 without compiler extensions

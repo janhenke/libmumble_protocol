@@ -5,8 +5,25 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
+#include <tuple>
 
 #include "mumble_client_protocol_export.h"
+
+#if __has_include(<span>)
+
+#include <span>
+
+using std::span;
+using std::as_bytes;
+using std::as_writeable_bytes;
+#else
+
+#include <gsl/span>
+
+using gsl::span;
+using gsl::as_bytes;
+using gsl::as_writable_bytes;
+#endif
 
 #ifndef LIBMUMBLE_CLIENT_VOICE_DATA_HPP
 #define LIBMUMBLE_CLIENT_VOICE_DATA_HPP
@@ -27,6 +44,12 @@ namespace mumble_client::protocol::voice {
 	std::byte *decode_varint(std::byte *start, const std::byte *limit, int64_t &result);
 
 	std::byte *encode_varint(std::byte *start, const std::byte *limit, int64_t value);
+
+	MUMBLE_CLIENT_PROTOCOL_EXPORT
+	std::tuple<int64_t, const std::byte *> decode_varint(const std::byte *first, const std::byte *last);
+
+	MUMBLE_CLIENT_PROTOCOL_EXPORT
+	std::byte *encode_varint(std::byte *first, std::byte *last, int64_t value);
 }
 
 #endif //LIBMUMBLE_CLIENT_VOICE_DATA_HPP
