@@ -25,3 +25,6 @@ endif ()
 option(Boost_USE_STATIC_LIBS "Use static boost libraries when possible" OFF)
 
 add_subdirectory("src")
+
+enable_testing()
+add_subdirectory("test")
