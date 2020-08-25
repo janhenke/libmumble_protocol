@@ -1,4 +1,4 @@
-find_package(Boost 1.72 REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost 1.67 REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(protocol_test protocol/main.cpp protocol/voice.cpp)
 
