@@ -15,7 +15,7 @@
 
 using std::span;
 using std::as_bytes;
-using std::as_writeable_bytes;
+using std::as_writable_bytes;
 #else
 
 #include <gsl/span>
