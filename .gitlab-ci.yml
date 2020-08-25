@@ -6,10 +6,13 @@ image: gcc:10
 
 build:
   stage: build
-  # instead of calling g++ directly you can also use some build toolkit like make
-  # install the necessary build tools when needed
+  cache:
+    key: apt-cache
+    paths:
+      - apt-cache/
   before_script:
-     - apt update && apt -y install cmake ninja-build libmsgsl-dev libboost-dev libboost-test-dev libsoundio-dev libopus-dev
+      - export APT_CACHE_DIR=`pwd`/apt-cache && mkdir -pv $APT_CACHE_DIR
+      - apt-get update -yq && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y cmake ninja-build libmsgsl-dev libboost-dev libboost-test-dev libprotobuf-dev protobuf-compiler libsoundio-dev libopus-dev
   script:
     - mkdir build && cd build
     - cmake -G Ninja ..
