@@ -20,11 +20,7 @@ build:
     - cd ..
   artifacts:
     paths:
-      - build/**.so
-      # depending on your build setup it's most likely a good idea to cache outputs to reduce the build time
-      # cache:
-      #   paths:
-      #     - "*.o"
+      - build/**/*.so*
 
 # run tests using the binary built before
 test:
