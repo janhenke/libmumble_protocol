@@ -9,7 +9,7 @@ build:
   # instead of calling g++ directly you can also use some build toolkit like make
   # install the necessary build tools when needed
   before_script:
-     - apt update && apt -y install cmake ninja-build libmsgsl-dev libboost-dev libsoundio-dev
+     - apt update && apt -y install cmake ninja-build libmsgsl-dev libboost-dev libboost-test-dev libsoundio-dev libopus-dev
   script:
     - mkdir build && cd build
     - cmake -G Ninja ..
