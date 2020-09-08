@@ -4,6 +4,10 @@
 # see https://hub.docker.com/_/gcc/
 image: gcc:10
 
+stages:
+  - build
+  - test
+
 build:
   stage: build
   cache:
@@ -34,5 +38,7 @@ test:
       - apt-get update -yq && apt-get -o dir::cache::archives="$APT_CACHE_DIR" install -y cmake ninja-build libmsgsl-dev libboost-dev libboost-test-dev libprotobuf-dev protobuf-compiler libsoundio-dev libopus-dev
   script:
     - cd build
+    - cmake -G Ninja ..
+    - cmake --build . --parallel
     - ctest
     - cd ..
