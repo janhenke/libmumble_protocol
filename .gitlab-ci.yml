@@ -6,24 +6,17 @@ stages:
 
 build:
   stage: build
-  cache:
-    key: build-cache
-    paths:
-      - build/
   script:
     - mkdir build && cd build
     - cmake -G Ninja ..
     - cmake --build . --parallel --clean-first
   artifacts:
     paths:
-      - build/**/*.so*
+      - build/
 
 # run tests using the binary built before
 test:
   stage: test
-  cache:
-    key: build-cache
   script:
     - cd build
-    - cmake -G Ninja ..
     - ctest
