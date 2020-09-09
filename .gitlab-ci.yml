@@ -25,4 +25,5 @@ test:
     key: build-cache
   script:
     - cd build
+    - cmake -G Ninja ..
     - ctest
