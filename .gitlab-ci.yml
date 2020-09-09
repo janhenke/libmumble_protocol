@@ -7,7 +7,8 @@ stages:
 build:
   stage: build
   script:
-    - rm -rf build && mkdir build
+    - rm -rf build
+    - mkdir build
     - cd build
     - cmake -G Ninja ..
     - cmake --build . --parallel --clean-first
