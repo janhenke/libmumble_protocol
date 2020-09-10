@@ -25,10 +25,6 @@ namespace mumble_client::protocol::voice {
 		std::unique_ptr<impl> pImpl;
 	};
 
-	std::byte *decode_varint(std::byte *start, const std::byte *limit, int64_t &result);
-
-	std::byte *encode_varint(std::byte *start, const std::byte *limit, int64_t value);
-
 	MUMBLE_CLIENT_PROTOCOL_EXPORT
 	std::tuple<int64_t, const std::byte *> decode_varint(const std::byte *first, const std::byte *last);
 
