@@ -27,4 +27,5 @@ set(BOOST_REQUIRED_VERSION 1.71)
 
 add_subdirectory(src)
 
+enable_testing()
 add_subdirectory(test)

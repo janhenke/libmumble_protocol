@@ -1,5 +1,3 @@
-enable_testing()
-
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(test_libmumble_client_protocol protocol/main.cpp protocol/voice.cpp)
