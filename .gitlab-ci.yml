@@ -24,4 +24,5 @@ test:
   stage: test
   script:
     - cd build
+    - cmake -G Ninja ..
     - ctest
