@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 //
 // Created by jan on 20.06.19.
 //
@@ -22,7 +24,7 @@ namespace mumble_client::protocol::voice {
 			throw std::out_of_range{"Invalid range specified."};
 		}
 
-		int64_t result = 0;
+		int64_t result;
 		auto ptr = first;
 
 		if ((*ptr & std::byte{0x80}) == std::byte{0x00}) {
@@ -90,9 +92,65 @@ namespace mumble_client::protocol::voice {
 	}
 
 	std::byte *encode_varint(std::byte *first, std::byte *last, int64_t value) {
-		(void) first;
-		(void) last;
-		(void) value;
-		return nullptr;
+
+		if (!first || first == last) {
+			throw std::out_of_range{"Invalid range specified."};
+		}
+
+		int64_t i = value;
+		auto ptr = first;
+
+		if ((i & 0x8000000000000000LL) && (~i < 0x100000000LL)) {
+			// Signed number.
+			i = ~i;
+			if (i <= 0x3) {
+				// Shortcase for -1 to -4
+				*ptr = std::byte(0xFC | i);
+				return ++ptr;
+			} else {
+				*ptr = std::byte{0xF8};
+				++ptr;
+			}
+		}
+
+		if (i < 0x80) {
+			// Need top bit clear
+			*ptr = std::byte(i);
+		} else if (i < 0x4000) {
+			// Need top two bits clear
+			*ptr = std::byte((i >> 8) | 0x80);
+			*++ptr = std::byte(i & 0xFF);
+		} else if (i < 0x200000) {
+			// Need top three bits clear
+			*ptr = std::byte((i >> 16) | 0xC0);
+			*++ptr = std::byte((i >> 8) & 0xFF);
+			*++ptr = std::byte(i & 0xFF);
+		} else if (i < 0x10000000) {
+			// Need top four bits clear
+			*ptr = std::byte((i >> 24) | 0xE0);
+			*++ptr = std::byte((i >> 16) & 0xFF);
+			*++ptr = std::byte((i >> 8) & 0xFF);
+			*++ptr = std::byte(i & 0xFF);
+		} else if (i < 0x100000000LL) {
+			// It's a full 32-bit integer.
+			*ptr = std::byte(0xF0);
+			*++ptr = std::byte((i >> 24) & 0xFF);
+			*++ptr = std::byte((i >> 16) & 0xFF);
+			*++ptr = std::byte((i >> 8) & 0xFF);
+			*++ptr = std::byte(i & 0xFF);
+		} else {
+			// It's a 64-bit value.
+			*ptr = std::byte(0xF4);
+			*++ptr = std::byte((i >> 56) & 0xFF);
+			*++ptr = std::byte((i >> 48) & 0xFF);
+			*++ptr = std::byte((i >> 40) & 0xFF);
+			*++ptr = std::byte((i >> 32) & 0xFF);
+			*++ptr = std::byte((i >> 24) & 0xFF);
+			*++ptr = std::byte((i >> 16) & 0xFF);
+			*++ptr = std::byte((i >> 8) & 0xFF);
+			*++ptr = std::byte(i & 0xFF);
+		}
+		return ++ptr;
 	}
 }
+#pragma clang diagnostic pop
