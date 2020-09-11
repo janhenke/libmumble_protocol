@@ -31,6 +31,25 @@ BOOST_AUTO_TEST_CASE(decode_varint) {
 	test_decode_varint(std::array{std::byte{0b1110'1111}, std::byte{0x00}, std::byte{0xff}, std::byte{0x00}},
 	                   0x0f00ff00LL);
 
-//	test_decode_varint(std::array{std::byte{0b1111'0011}, std::byte{0x00}, std::byte{0xff}, std::byte{0x00}, std::byte{0xff}},
-//	                   0x00ff00ffLL);
+	test_decode_varint(std::array{std::byte{0b1111'0000},
+	                              std::byte{0x00},
+	                              std::byte{0xff},
+	                              std::byte{0x00},
+	                              std::byte{0xff}},
+	                   0x00ff00ffULL);
+
+	test_decode_varint(std::array{std::byte{0b1111'0100},
+	                              std::byte{0x00},
+	                              std::byte{0xff},
+	                              std::byte{0x00},
+	                              std::byte{0xff},
+	                              std::byte{0x00},
+	                              std::byte{0xff},
+	                              std::byte{0x00},
+	                              std::byte{0xff}},
+	                   0x00ff00ff00ff00ffULL);
+
+	test_decode_varint(std::array{std::byte{0b1111'1000}, std::byte{0b0111'1111}}, ~0x0000007fLL);
+
+	test_decode_varint(std::array{std::byte{0b1111'1101}}, ~0x0000001LL);
 }

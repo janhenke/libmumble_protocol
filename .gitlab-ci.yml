@@ -12,6 +12,9 @@ build:
     - cd build
     - cmake -G Ninja ..
     - cmake --build . --parallel --clean-first
+  cache:
+    paths:
+      - build/
   artifacts:
     paths:
       - build/

@@ -53,35 +53,34 @@ namespace mumble_client::protocol::voice {
 			result |= std::to_integer<int64_t>(*++ptr);
 			return {result, ++ptr};
 		} else if ((*ptr & std::byte{0xf0}) == std::byte{0xf0}) {
+			std::tuple<int64_t, const std::byte *> recursive_result;
 			switch (std::to_integer<uint8_t>(*ptr & std::byte{0xfc})) {
 				case 0xf0:
 					if (last - ptr < 5) {
 						throw std::out_of_range{"Invalid range specified."};
 					}
-					++ptr;
-					result = std::to_integer<int64_t>(*ptr++) << 24;
-					result |= std::to_integer<int64_t>(*ptr++) << 16;
-					result |= std::to_integer<int64_t>(*ptr++) << 8;
-					result |= std::to_integer<int64_t>(*ptr++);
+					result = std::to_integer<int64_t>(*++ptr) << 24;
+					result |= std::to_integer<int64_t>(*++ptr) << 16;
+					result |= std::to_integer<int64_t>(*++ptr) << 8;
+					result |= std::to_integer<int64_t>(*++ptr);
 					return {result, ++ptr};
 				case 0xf4:
 					if (last - ptr < 9) {
 						throw std::out_of_range{"Invalid range specified."};
 					}
-					++ptr;
-					result = std::to_integer<int64_t>(*ptr++) << 56;
-					result |= std::to_integer<int64_t>(*ptr++) << 48;
-					result |= std::to_integer<int64_t>(*ptr++) << 40;
-					result |= std::to_integer<int64_t>(*ptr++) << 32;
-					result |= std::to_integer<int64_t>(*ptr++) << 24;
-					result |= std::to_integer<int64_t>(*ptr++) << 16;
-					result |= std::to_integer<int64_t>(*ptr++) << 8;
-					result |= std::to_integer<int64_t>(*ptr++);
+					result = std::to_integer<int64_t>(*++ptr) << 56;
+					result |= std::to_integer<int64_t>(*++ptr) << 48;
+					result |= std::to_integer<int64_t>(*++ptr) << 40;
+					result |= std::to_integer<int64_t>(*++ptr) << 32;
+					result |= std::to_integer<int64_t>(*++ptr) << 24;
+					result |= std::to_integer<int64_t>(*++ptr) << 16;
+					result |= std::to_integer<int64_t>(*++ptr) << 8;
+					result |= std::to_integer<int64_t>(*++ptr);
 					return {result, ++ptr};
 					//TODO: Make this case work
-//				case 0xf8:
-//					auto[result, ptr1] = decode_varint(++ptr, last);
-//					return {~result, ptr1};
+				case 0xf8:
+					recursive_result = decode_varint(++ptr, last);
+					return {~std::get<int64_t>(recursive_result), std::get<const std::byte *>(recursive_result)};
 				case 0xfc:
 					result = ~std::to_integer<int64_t>(*ptr & std::byte{0x03});
 					return {result, ++ptr};
@@ -91,6 +90,9 @@ namespace mumble_client::protocol::voice {
 	}
 
 	std::byte *encode_varint(std::byte *first, std::byte *last, int64_t value) {
+		(void) first;
+		(void) last;
+		(void) value;
 		return nullptr;
 	}
 }
