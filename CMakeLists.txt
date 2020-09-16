@@ -24,6 +24,11 @@ endif ()
 # Use static boost libraries when possible
 option(Boost_USE_STATIC_LIBS "Use static boost libraries when possible" OFF)
 set(BOOST_REQUIRED_VERSION 1.71)
+if (${MSVC})
+	set(COMPILER_WARNING_OPTIONS /EHsc)
+else ()
+	set(COMPILER_WARNING_OPTIONS -Wall -Wextra -Wpedantic)
+endif ()
 
 add_subdirectory(src)
 
