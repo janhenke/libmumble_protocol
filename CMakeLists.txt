@@ -3,11 +3,11 @@ project(libmumble_client VERSION 0.0.1)
 
 # compile for C++20 without compiler extensions
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # compile for C11 without compiler extensions
 set(CMAKE_C_STANDARD 11)
-set(CMAKE_C_STANDARD_REQUIRED 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS OFF)
 
 # always compile position independent
