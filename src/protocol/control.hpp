@@ -9,14 +9,14 @@
 #include <experimental/propagate_const>
 #endif
 
-#include "mumble_client_protocol_export.h"
+#include "mumble_client_export.h"
 
 #ifndef LIBMUMBLE_CLIENT_CONTROL_HPP
 #define LIBMUMBLE_CLIENT_CONTROL_HPP
 
 namespace mumble_client::protocol::control {
 
-	class MUMBLE_CLIENT_PROTOCOL_EXPORT acl {
+	class MUMBLE_CLIENT_EXPORT acl {
 
 
 	private:

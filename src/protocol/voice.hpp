@@ -20,25 +20,25 @@ using std::span;
 using gsl::span;
 #endif
 
-#include "mumble_client_protocol_export.h"
+#include "mumble_client_export.h"
 
 namespace mumble_client::protocol::voice {
 
 	class MUMBLE_CLIENT_PROTOCOL_EXPORT ping_packet {
-	public:
-		ping_packet();
+			public:
+			ping_packet();
 
-		virtual ~ping_packet();
+			virtual ~ping_packet();
 
-	private:
-		struct impl;
-		std::unique_ptr<impl> pImpl;
+			private:
+			struct impl;
+			std::unique_ptr<impl> pImpl;
 	};
 
-	MUMBLE_CLIENT_PROTOCOL_EXPORT
+	MUMBLE_CLIENT_EXPORT
 	std::tuple<int64_t, const std::size_t> decode_varint(span<const std::byte> buffer);
 
-	MUMBLE_CLIENT_PROTOCOL_EXPORT
+	MUMBLE_CLIENT_EXPORT
 	std::size_t encode_varint(int64_t value, span<std::byte> buffer);
 }
 
