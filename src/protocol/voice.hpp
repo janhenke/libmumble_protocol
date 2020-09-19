@@ -24,15 +24,15 @@ using gsl::span;
 
 namespace mumble_client::protocol::voice {
 
-	class MUMBLE_CLIENT_PROTOCOL_EXPORT ping_packet {
-			public:
-			ping_packet();
+	class MUMBLE_CLIENT_EXPORT ping_packet {
+	public:
+		ping_packet();
 
-			virtual ~ping_packet();
+		virtual ~ping_packet();
 
-			private:
-			struct impl;
-			std::unique_ptr<impl> pImpl;
+	private:
+		struct impl;
+		std::unique_ptr<impl> pImpl;
 	};
 
 	MUMBLE_CLIENT_EXPORT
