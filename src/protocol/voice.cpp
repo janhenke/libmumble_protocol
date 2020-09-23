@@ -8,14 +8,6 @@
 
 namespace mumble_client::protocol::voice {
 
-	struct ping_packet::impl {
-
-	};
-
-	ping_packet::ping_packet() = default;
-
-	ping_packet::~ping_packet() = default;
-
 	std::tuple<int64_t, const std::size_t> decode_varint(span<const std::byte> buffer) {
 
 		if (buffer.empty()) {
