@@ -11,7 +11,7 @@ namespace mumble_client::packet::tcp {
 		MumbleProto::Version mumble_packet;
 	};
 
-	uint32_t version::versionInt() const {
+	uint32_t version::numeric_version() const {
 		return pImpl->mumble_packet.has_version() ? pImpl->mumble_packet.version() : 0;
 	}
 
@@ -28,6 +28,14 @@ namespace mumble_client::packet::tcp {
 	}
 
 	version::version() = default;
+
+	struct authenticate::impl {
+		MumbleProto::Authenticate mumble_packet;
+	};
+
+	std::string_view authenticate::username() const {
+		return pImpl->mumble_packet.has_username() ? pImpl->mumble_packet.username() : std::string_view();
+	}
 
 	struct acl::impl {
 		MumbleProto::ACL mumble_packet;

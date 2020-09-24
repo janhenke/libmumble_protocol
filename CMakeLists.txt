@@ -13,6 +13,10 @@ set(CMAKE_C_EXTENSIONS OFF)
 # always compile position independent
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# hide symbols in shared libraries by default
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN 1)
+
 # Use libc++ instead of libstdc++ (Clang only)
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	option(USE_LIBCPP "Use libc++ as C++ standard library" OFF)

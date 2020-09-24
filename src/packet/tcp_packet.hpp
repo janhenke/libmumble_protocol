@@ -21,6 +21,22 @@
 
 namespace mumble_client::packet::tcp {
 
+	/**
+	 * Maximum length of the payload part of the packet according to the specification.
+	 */
+	MUMBLE_PACKET_EXPORT constexpr std::size_t MaxPayloadLength = 8 * 1024 * 1024 - 1;
+	/**
+	 * Length of the packet header.
+	 */
+	MUMBLE_PACKET_EXPORT constexpr std::size_t HeaderLength = 2 + 4;
+	/**
+	 * Maximum length of the entire packet (header + payload).
+	 */
+	MUMBLE_PACKET_EXPORT constexpr std::size_t MaxPacketLength = HeaderLength + MaxPayloadLength;
+
+	/**
+	 * All defined packet types.
+	 */
 	enum struct packet_type : uint16_t {
 		Version = 0,
 		UDPTunnel = 1,
@@ -50,9 +66,16 @@ namespace mumble_client::packet::tcp {
 		SuggestConfig = 25
 	};
 
+	struct MUMBLE_PACKET_EXPORT header {
+		const packet_type type;
+		const uint32_t packet_length;
+	};
+
 	class MUMBLE_PACKET_EXPORT version {
 	public:
-		[[nodiscard]] uint32_t versionInt() const;
+		static constexpr packet_type type = packet_type::Version;
+
+		[[nodiscard]] uint32_t numeric_version() const;
 
 		[[nodiscard]] std::string_view release() const;
 
@@ -61,6 +84,21 @@ namespace mumble_client::packet::tcp {
 		[[nodiscard]] std::string_view os_version() const;
 
 		version();
+
+	private:
+		struct impl;
+#if __has_include(<experimental/propagate_const>)
+		std::experimental::propagate_const<std::unique_ptr<impl>> pImpl;
+#else
+		std::unique_ptr<impl> pImpl;
+#endif
+	};
+
+	class MUMBLE_PACKET_EXPORT authenticate {
+	public:
+		static constexpr packet_type type = packet_type::Authenticate;
+
+		[[nodiscard]] std::string_view username() const;
 
 	private:
 		struct impl;
