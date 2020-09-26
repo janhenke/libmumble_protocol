@@ -25,6 +25,8 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	endif ()
 endif ()
 
+include(GNUInstallDirs)
+
 # Use static boost libraries when possible
 option(Boost_USE_STATIC_LIBS "Use static boost libraries when possible" OFF)
 set(BOOST_REQUIRED_VERSION 1.71)
