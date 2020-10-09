@@ -4,6 +4,8 @@
 
 #include <boost/program_options.hpp>
 
+#include "core.hpp"
+
 int main(int argc, char *argv[]) {
 
 	boost::program_options::options_description description{"libmumble_client example application"};
@@ -23,6 +25,11 @@ int main(int argc, char *argv[]) {
 
 	const std::string serverName = variablesMap["server"].as<std::string>();
 	const bool ignoreServerCert = variablesMap.count("ignore-cert");
+
+	mumble_client::client client{serverName, 64738, !ignoreServerCert};
+
+	// run the client
+	client();
 
 	return EXIT_SUCCESS;
 }

@@ -3,9 +3,28 @@
 //
 
 #include "tcp_packet.hpp"
+
+#include <boost/endian.hpp>
+
 #include "Mumble.pb.h"
 
 namespace mumble_client::packet::tcp {
+
+	header header::parse(const span<std::byte> buffer) {
+		if (std::size(buffer) < 6) {
+			throw std::out_of_range{"Invalid range specified."};
+		}
+		packet_type type{static_cast<uint16_t>(std::to_integer<uint16_t>(buffer[0]) << 8 |
+		                                       std::to_integer<uint16_t>(buffer[1]))};
+
+		uint32_t packet_length = std::to_integer<uint32_t>(buffer[2]) << 24 |
+		                         std::to_integer<uint32_t>(buffer[3]) << 16 |
+		                         std::to_integer<uint32_t>(buffer[4]) << 8 |
+		                         std::to_integer<uint32_t>(buffer[5]);
+		return header(type, packet_length);
+	}
+
+	header::header(packet_type type, uint32_t packet_length) : type(type), packet_length(packet_length) {};
 
 	struct version::impl {
 		MumbleProto::Version mumble_packet;

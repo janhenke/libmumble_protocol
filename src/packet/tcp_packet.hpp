@@ -5,11 +5,23 @@
 #ifndef LIBMUMBLE_CLIENT_TCP_PACKET_HPP
 #define LIBMUMBLE_CLIENT_TCP_PACKET_HPP
 
+#pragma once
+
 #include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>
 #include <version>
+
+#if __has_include(<span>)
+#include <span>
+using std::span;
+#else
+
+#include <gsl/span>
+
+using gsl::span;
+#endif
 
 #if __has_include(<experimental/propagate_const>)
 
@@ -37,7 +49,7 @@ namespace mumble_client::packet::tcp {
 	/**
 	 * All defined packet types.
 	 */
-	enum struct packet_type : uint16_t {
+	enum struct MUMBLE_PACKET_EXPORT packet_type : uint16_t {
 		Version = 0,
 		UDPTunnel = 1,
 		Authenticate = 2,
@@ -67,6 +79,10 @@ namespace mumble_client::packet::tcp {
 	};
 
 	struct MUMBLE_PACKET_EXPORT header {
+		static header parse(span<std::byte>);
+
+		header(packet_type type, uint32_t packet_length);
+
 		const packet_type type;
 		const uint32_t packet_length;
 	};
