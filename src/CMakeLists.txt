@@ -33,7 +33,7 @@ target_compile_definitions(mumble_client
 target_compile_options(mumble_client PRIVATE ${COMPILER_WARNING_OPTIONS})
 target_link_libraries(mumble_client
                       PRIVATE mumble_packet
-                      PRIVATE Threads::Threads
+                      PRIVATE ${CMAKE_THREAD_LIBS_INIT}
                       PRIVATE OpenSSL::SSL
                       PRIVATE OpenSSL::Crypto
                       PRIVATE Boost::boost

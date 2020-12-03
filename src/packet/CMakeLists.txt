@@ -15,7 +15,7 @@ target_include_directories(mumble_packet
                            PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
                            PRIVATE ${Protobuf_INCLUDE_DIRS})
 target_link_libraries(mumble_packet
-                      PRIVATE Threads::Threads
+                      PRIVATE ${CMAKE_THREAD_LIBS_INIT}
                       PRIVATE protobuf::libprotobuf)
 if (lto_supported)
 	set_property(TARGET mumble_packet PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
