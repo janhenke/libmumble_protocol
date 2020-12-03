@@ -46,7 +46,7 @@ namespace mumble_client {
 
 		tlsContext.set_default_verify_paths();
 		tlsStream.set_verify_mode(validateServerCertificate ? asio::ssl::verify_peer : asio::ssl::verify_none);
-		tlsStream.set_verify_callback(asio::ssl::rfc2818_verification(std::string{server}));
+		tlsStream.set_verify_callback(asio::ssl::host_name_verification(std::string{server}));
 
 		asio::ip::tcp::resolver resolver{ioContext};
 		const auto &endpoints = resolver.resolve(server, std::to_string(port));
