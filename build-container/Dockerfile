@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     libmsgsl-dev \
     libboost-dev \
+    libboost-log-dev \
     libboost-program-options-dev \
     libboost-test-dev \
     libprotobuf-dev \
