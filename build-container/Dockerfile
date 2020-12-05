@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     libboost-log-dev \
     libboost-program-options-dev \
     libboost-test-dev \
+    libssl-dev \
     libprotobuf-dev \
     protobuf-compiler \
     libsoundio-dev \
