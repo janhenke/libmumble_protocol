@@ -36,15 +36,15 @@ namespace mumble_client::packet::tcp {
 	/**
 	 * Maximum length of the payload part of the packet according to the specification.
 	 */
-	MUMBLE_PACKET_EXPORT constexpr std::size_t MaxPayloadLength = 8 * 1024 * 1024 - 1;
+	constexpr std::size_t MaxPayloadLength = 8 * 1024 * 1024 - 1;
 	/**
 	 * Length of the packet header.
 	 */
-	MUMBLE_PACKET_EXPORT constexpr std::size_t HeaderLength = 2 + 4;
+	constexpr std::size_t HeaderLength = 2 + 4;
 	/**
 	 * Maximum length of the entire packet (header + payload).
 	 */
-	MUMBLE_PACKET_EXPORT constexpr std::size_t MaxPacketLength = HeaderLength + MaxPayloadLength;
+	constexpr std::size_t MaxPacketLength = HeaderLength + MaxPayloadLength;
 
 	/**
 	 * All defined packet types.
