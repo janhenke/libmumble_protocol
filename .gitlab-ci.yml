@@ -1,4 +1,4 @@
-image: docker.taujhe.de/build/libmumble_client
+image: docker.taujhe.de/build/cxx_ubuntu
 
 stages:
   - build
