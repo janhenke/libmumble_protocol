@@ -14,7 +14,7 @@
 #include <boost/log/expressions.hpp>
 #include <boost/log/utility/manipulators/dump.hpp>
 
-#include "tcp_packet.hpp"
+#include "packet/tcp_packet.hpp"
 
 namespace mumble_client {
 

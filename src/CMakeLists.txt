@@ -5,7 +5,7 @@ check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 
 # mumble_packet
 find_package(Protobuf REQUIRED)
-protobuf_generate_cpp(MUMBLE_PROTOBUF_SOURCE_FILES MUMBLE_PROTOBUF_HEADER_FILES Mumble.proto)
+protobuf_generate_cpp(MUMBLE_PROTOBUF_SOURCE_FILES MUMBLE_PROTOBUF_HEADER_FILES packet/Mumble.proto)
 add_library(mumble_packet
         STATIC
         ${MUMBLE_PROTOBUF_SOURCE_FILES} ${MUMBLE_PROTOBUF_HEADER_FILES}
