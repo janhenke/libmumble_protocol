@@ -36,6 +36,8 @@ else ()
 	set(COMPILER_WARNING_OPTIONS -Wall -Wextra -Wpedantic)
 endif ()
 
+add_subdirectory(mumble_protocol)
+
 add_subdirectory(src)
 
 enable_testing()

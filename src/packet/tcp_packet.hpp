@@ -29,7 +29,7 @@ using gsl::span;
 
 #endif
 
-#include "mumble_packet_export.h"
+#include "mumble_client_export.h"
 
 namespace mumble_client::packet::tcp {
 
@@ -49,7 +49,8 @@ namespace mumble_client::packet::tcp {
 	/**
 	 * All defined packet types.
 	 */
-	enum struct MUMBLE_PACKET_EXPORT packet_type : uint16_t {
+	enum struct MUMBLE_CLIENT_EXPORT packet_type : uint16_t
+	{
 		Version = 0,
 		UDPTunnel = 1,
 		Authenticate = 2,
@@ -78,7 +79,8 @@ namespace mumble_client::packet::tcp {
 		SuggestConfig = 25
 	};
 
-	struct MUMBLE_PACKET_EXPORT header {
+	struct MUMBLE_CLIENT_EXPORT header
+	{
 		static header parse(span<std::byte>);
 
 		header(packet_type type, uint32_t packet_length);
@@ -87,8 +89,9 @@ namespace mumble_client::packet::tcp {
 		const uint32_t packet_length;
 	};
 
-	class MUMBLE_PACKET_EXPORT version {
-	public:
+	class MUMBLE_CLIENT_EXPORT version
+	{
+	 public:
 		static constexpr packet_type type = packet_type::Version;
 
 		[[nodiscard]] uint32_t numeric_version() const;
@@ -110,13 +113,14 @@ namespace mumble_client::packet::tcp {
 #endif
 	};
 
-	class MUMBLE_PACKET_EXPORT authenticate {
-	public:
+	class MUMBLE_CLIENT_EXPORT authenticate
+	{
+	 public:
 		static constexpr packet_type type = packet_type::Authenticate;
 
 		[[nodiscard]] std::string_view username() const;
 
-	private:
+	 private:
 		struct impl;
 #if __has_include(<experimental/propagate_const>)
 		std::experimental::propagate_const<std::unique_ptr<impl>> pImpl;
@@ -125,14 +129,14 @@ namespace mumble_client::packet::tcp {
 #endif
 	};
 
-	class MUMBLE_PACKET_EXPORT acl {
-	public:
+	class MUMBLE_CLIENT_EXPORT acl
+	{
+	 public:
 		static constexpr packet_type type = packet_type::ACL;
 
 		[[nodiscard]] uint32_t channel_id() const;
 
-
-	private:
+	 private:
 		struct impl;
 //#if __cpp_lib_experimental_propagate_const >= 201505L
 #if __has_include(<experimental/propagate_const>)
