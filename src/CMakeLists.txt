@@ -41,6 +41,7 @@ target_include_directories(mumble_client
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
         PUBLIC ${OPUS_INCLUDE_DIR})
 target_compile_definitions(mumble_client
+        PUBLIC ASIO_NO_DEPRECATED
         PUBLIC BOOST_LOG_DYN_LINK
         PUBLIC BOOST_ASIO_NO_DEPRECATED
         PUBLIC BOOST_ASIO_DISABLE_CONCEPTS)
