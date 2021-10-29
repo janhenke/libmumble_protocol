@@ -1,10 +1,10 @@
+#include "core/Client.h"
+
 #include <cstdlib>
 #include <iostream>
 #include <string>
 
 #include <boost/program_options.hpp>
-
-#include "core.hpp"
 
 int main(int argc, char *argv[]) {
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 	const std::string serverName = variablesMap["server"].as<std::string>();
 	const bool ignoreServerCert = variablesMap.count("ignore-cert");
 
-	mumble_client::client client{serverName, 64738, !ignoreServerCert};
+	mumble_client::Client client{serverName, 64738, !ignoreServerCert};
 
 	// run the client
 	client();

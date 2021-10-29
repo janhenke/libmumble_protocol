@@ -7,7 +7,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <protocol/voice.hpp>
+#include <protocol/util.h>
 
 template<std::size_t N>
 void test_decode_varint(const std::array<std::byte, N> &data, int64_t expected) {
