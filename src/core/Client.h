@@ -21,7 +21,8 @@ namespace mumble_client {
 namespace core {
 class MUMBLE_CLIENT_EXPORT Client {
    public:
-	explicit Client(std::string_view server, uint16_t port = 64738, bool validate_server_certificate = true);
+	explicit Client(std::string_view user_name, std::string_view server, uint16_t port = 64738,
+					bool validate_server_certificate = true);
 
 	Client(const Client &&) = delete;
 

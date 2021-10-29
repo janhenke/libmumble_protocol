@@ -20,7 +20,7 @@ struct Header {
 	const PacketType packet_type;
 	const uint32_t packet_length;
 
-	void Write(std::span<std::byte> buffer);
+	void Write(std::span<std::byte> buffer) const;
 };
 }// namespace mumble_client::protocol::control
 
