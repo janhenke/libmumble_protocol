@@ -57,7 +57,7 @@ Client::Impl::Impl()
 
 void Client::Impl::ReadCompletionHandler(const std::error_code &ec, std::size_t bytes_transferred) {
 	if (ec) {
-		BOOST_LOG_TRIVIAL(error) << "Error reading from connection: " << ec.message();
+		BOOST_LOG_TRIVIAL(error) << "Error reading from socket: " << ec.message();
 		throw std::system_error(ec);
 	} else {
 		ParseReceivedBuffer(bytes_transferred);
@@ -150,44 +150,51 @@ void Client::Impl::ParseVersionPacket(const std::span<std::byte> payload) {
 }
 
 void Client::Impl::SendVersionPacket() {
-	// first Mumble version with Opus support
-	protocol::control::VersionPacket::Version client_version{1, 2, 4};
+	protocol::control::VersionPacket::Version client_version{1, 3, 4};
 	const uint32_t NumericVersion(client_version);
+
 	MumbleProto::Version version{};
 	version.set_version(NumericVersion);
-	version.set_release("");
-	version.set_os("");
-	version.set_os_version("");
+	version.set_release("1.3.4");
+	version.set_os("Linux");
+	version.set_os_version("5.4.32");
+	const auto VersionAsString = version.SerializeAsString();
 
 	protocol::control::Header header{protocol::control::PacketType::Version,
-									 static_cast<uint32_t>(version.SpaceUsedLong())};
-	std::array<std::byte, protocol::control::MaxPacketLength> buffer{};
-	std::span<std::byte> buffer_span{buffer};
+									 static_cast<uint32_t>(std::size(VersionAsString))};
+	const auto header_string = header.SerializeAsString();
 
-	header.Write(buffer);
-	std::span<std::byte> payload_span = buffer_span.last(protocol::control::MaxPayloadLength);
-	version.SerializeToArray(payload_span.data(), static_cast<int>(payload_span.size_bytes()));
+	const auto message = header_string + VersionAsString;
+	asio::async_write(tls_socket, asio::buffer(message), [](const std::error_code &ec, std::size_t bytes_transferred) {
+		if (ec) {
+			BOOST_LOG_TRIVIAL(error) << "Error writing to socket: " << ec.message();
+			throw std::system_error(ec);
+		}
 
-	asio::async_write(tls_socket, asio::buffer(buffer),
-					  [this](const std::error_code &ec, std::size_t bytes_transferred) {});
+		BOOST_LOG_TRIVIAL(debug) << "Wrote " << bytes_transferred << " bytes to socket";
+	});
 }
 
 void Client::Impl::SendAuthenticatePaket(const std::string_view user_name) {
 	MumbleProto::Authenticate authenticate{};
 	authenticate.set_username(std::string(user_name));
 	authenticate.set_opus(true);
+	const auto AuthenticateAsString = authenticate.SerializeAsString();
 
 	protocol::control::Header header{protocol::control::PacketType::Authenticate,
-									 static_cast<uint32_t>(authenticate.SpaceUsedLong())};
-	std::array<std::byte, protocol::control::MaxPacketLength> buffer{};
-	std::span<std::byte> buffer_span{buffer};
+									 static_cast<uint32_t>(std::size(AuthenticateAsString))};
+	const auto header_string = header.SerializeAsString();
 
-	header.Write(buffer);
-	std::span<std::byte> payload_span = buffer_span.last(protocol::control::MaxPayloadLength);
-	authenticate.SerializeToArray(payload_span.data(), static_cast<int>(payload_span.size_bytes()));
+	const auto message = header_string + AuthenticateAsString;
+	asio::async_write(tls_socket, asio::buffer(message), asio::transfer_all(),
+					  [](const std::error_code &ec, std::size_t bytes_transferred) {
+						  if (ec) {
+							  BOOST_LOG_TRIVIAL(error) << "Error writing to socket: " << ec.message();
+							  throw std::system_error(ec);
+						  }
 
-	asio::async_write(tls_socket, asio::buffer(buffer),
-					  [this](const std::error_code &ec, std::size_t bytes_transferred) {});
+						  BOOST_LOG_TRIVIAL(debug) << "Wrote " << bytes_transferred << " bytes to socket";
+					  });
 }
 
 // Client

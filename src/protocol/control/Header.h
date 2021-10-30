@@ -9,6 +9,7 @@
 
 #include <cstdint>
 #include <span>
+#include <string>
 
 namespace mumble_client::protocol::control {
 struct Header {
@@ -21,6 +22,7 @@ struct Header {
 	const uint32_t packet_length;
 
 	void Write(std::span<std::byte> buffer) const;
+	std::string SerializeAsString() const;
 };
 }// namespace mumble_client::protocol::control
 

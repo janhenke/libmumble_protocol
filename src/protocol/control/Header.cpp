@@ -27,5 +27,22 @@ void Header::Write(std::span<std::byte> buffer) const {
 	buffer[3] = std::byte(packet_length >> 16);
 	buffer[4] = std::byte(packet_length >> 8);
 	buffer[5] = std::byte(packet_length);
+}
+
+std::string Header::SerializeAsString() const {
+	std::string buffer{};
+	buffer.reserve(HeaderLength);
+
+	const auto numeric_packet_type = static_cast<uint16_t>(packet_type);
+	buffer[0] = static_cast<char>(numeric_packet_type >> 8);
+	buffer[1] = static_cast<char>(numeric_packet_type);
+
+	buffer[2] = static_cast<char>(packet_length >> 24);
+	buffer[3] = static_cast<char>(packet_length >> 16);
+	buffer[4] = static_cast<char>(packet_length >> 8);
+	buffer[5] = static_cast<char>(packet_length);
+
+	return buffer;
 };
+
 }// namespace mumble_client::protocol::control
