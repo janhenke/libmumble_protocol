@@ -7,6 +7,7 @@
 
 #include "mumble_client_export.h"
 
+#include <cstddef>
 #include <cstdint>
 
 namespace mumble_client::protocol::control {
