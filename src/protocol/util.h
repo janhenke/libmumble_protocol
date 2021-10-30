@@ -5,6 +5,8 @@
 #ifndef _UTIL_H_
 #define _UTIL_H_
 
+#include "mumble_client_export.h"
+
 #include <cstddef>
 #include <cstdint>
 #include <span>
@@ -17,9 +19,9 @@ inline void assert_min_buffer_size(const std::span<std::byte> &buffer, const std
 }
 
 namespace voice {
-std::tuple<int64_t, const std::size_t> decode_varint(std::span<const std::byte> buffer);
+MUMBLE_CLIENT_EXPORT std::tuple<int64_t, const std::size_t> decode_varint(std::span<const std::byte> buffer);
 
-std::size_t encode_varint(int64_t value, std::span<std::byte> buffer);
+MUMBLE_CLIENT_EXPORT std::size_t encode_varint(int64_t value, std::span<std::byte> buffer);
 }// namespace voice
 }// namespace mumble_client::protocol
 
