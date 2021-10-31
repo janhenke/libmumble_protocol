@@ -22,7 +22,7 @@ struct Header {
 	const uint32_t packet_length;
 
 	void Write(std::span<std::byte> buffer) const;
-	std::string SerializeAsString() const;
+	[[nodiscard]] std::array<std::byte, length> Serialize() const;
 };
 }// namespace mumble_client::protocol::control
 

@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 	const std::string serverName = variablesMap["server"].as<std::string>();
 	const bool ignoreServerCert = variablesMap.count("ignore-cert");
 
-	mumble_client::Client client{"Mumble Client Example User", serverName, 64738, !ignoreServerCert};
+	mumble_client::Client client{"Mumble_Client_Example_User", serverName, 64738, !ignoreServerCert};
 
 	// run the client
 	client();
