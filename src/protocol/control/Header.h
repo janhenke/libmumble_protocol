@@ -7,6 +7,7 @@
 
 #include "declarations.h"
 
+#include <array>
 #include <cstdint>
 #include <span>
 #include <string>
