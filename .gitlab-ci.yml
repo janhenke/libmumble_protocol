@@ -1,4 +1,4 @@
-image: docker.taujhe.de/build/cxx_ubuntu
+image: registry.gitlab.com/taujhe/docker-build-container/cxx_ubuntu
 
 stages:
   - build
