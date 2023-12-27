@@ -4,15 +4,9 @@ include(CheckIPOSupported)
 check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
 
 # libmumble_client
-find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS log log_setup program_options)
-find_package(Threads REQUIRED)
-find_package(OpenSSL)
-
-find_path(OPUS_INCLUDE_DIR NAMES opus/opus.h)
-find_library(OPUS_LIBRARY NAMES opus)
-
 add_library(
-        mumble_client SHARED
+        mumble_client
+        SHARED
         protocol/protocol.h
         protocol/control/declarations.h
         protocol/control/Header.cpp
@@ -21,12 +15,21 @@ add_library(
         protocol/util.h
         core/Client.cpp
         core/Client.h
-        protocol/control/VersionPacket.h)
+        protocol/control/VersionPacket.h
+)
 
 generate_export_header(mumble_client)
 
 set_target_properties(
-        mumble_client PROPERTIES
+        mumble_client
+        PROPERTIES
+        CXX_STANDARD 23
+        CXX_STANDARD_REQUIRED ON
+        CXX_EXTENSIONS OFF
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN ON
+        POSITION_INDEPENDENT_CODE ON
+        INTERPROCEDURAL_OPTIMIZATION $<IF:lto_supported,ON,OFF>
         VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
         SOVERSION 0
 )
@@ -35,7 +38,6 @@ target_include_directories(
         mumble_client
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
-        PUBLIC ${OPUS_INCLUDE_DIR}
 )
 
 target_compile_definitions(
@@ -47,19 +49,27 @@ target_compile_definitions(
 )
 
 # enable extra warnings for our code
-target_compile_options(mumble_client PRIVATE ${COMPILER_WARNING_OPTIONS})
+target_compile_options(
+        mumble_client
+        PRIVATE
+        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+)
+
+find_package(asio CONFIG REQUIRED)
+find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS log log_setup program_options)
+find_package(OpenSSL REQUIRED)
+find_package(Opus REQUIRED)
+find_package(Threads REQUIRED)
 
 target_link_libraries(
         mumble_client
         PRIVATE mumble_protocol
-        PUBLIC ${CMAKE_THREAD_LIBS_INIT}
-        PUBLIC OpenSSL::SSL
-        PRIVATE OpenSSL::Crypto
+        PRIVATE asio::asio
         PRIVATE Boost::boost
         PRIVATE Boost::log
-        PRIVATE ${OPUS_LIBRARY}
+        PRIVATE OpenSSL::SSL
+        PRIVATE OpenSSL::Crypto
+        PRIVATE Opus::opus
+        PUBLIC Threads::Threads
 )
-
-if (lto_supported)
-    set_property(TARGET mumble_client PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
-endif ()
