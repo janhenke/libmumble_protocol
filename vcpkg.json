@@ -1,0 +1,35 @@
+{
+  "name": "libmumble-client",
+  "version-string": "1.0.0",
+  "builtin-baseline": "38dd6b15ada368740b5047e4282cbd8395228f03",
+  "dependencies": [
+    {
+      "name": "asio",
+      "version>=": "1.28.1"
+    },
+    {
+      "name": "boost-log",
+      "version>=": "1.83.0"
+    },
+    {
+      "name": "boost-program-options",
+      "version>=": "1.83.0"
+    },
+    {
+      "name": "boost-test",
+      "version>=": "1.83.0"
+    },
+    {
+      "name": "opus",
+      "version>=": "1.4"
+    },
+    {
+      "name": "protobuf",
+      "version>=": "3.21.12"
+    },
+    {
+      "name": "libsoundio",
+      "version>=": "2.0.0#7"
+    }
+  ]
+}
