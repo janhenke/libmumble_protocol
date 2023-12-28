@@ -1,7 +1,7 @@
 include(GenerateExportHeader)
-# check for LTO support in the compiler
 include(CheckIPOSupported)
-check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
+# check for LTO support in the compiler, raise a fatal error is unsupported
+check_ipo_supported()
 
 # libmumble_client
 add_library(
@@ -27,9 +27,10 @@ set_target_properties(
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
         CXX_VISIBILITY_PRESET hidden
+        COMPILE_WARNING_AS_ERROR ON
         VISIBILITY_INLINES_HIDDEN ON
         POSITION_INDEPENDENT_CODE ON
-        INTERPROCEDURAL_OPTIMIZATION $<IF:lto_supported,ON,OFF>
+        INTERPROCEDURAL_OPTIMIZATION ON
         VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
         SOVERSION 0
 )
@@ -52,8 +53,8 @@ target_compile_definitions(
 target_compile_options(
         mumble_client
         PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/W4 /WX>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic -Werror>
+        $<$<CXX_COMPILER_ID:MSVC>:/W4>
+        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
 )
 
 find_package(asio CONFIG REQUIRED)
