@@ -21,6 +21,8 @@ target_include_directories(
         PUBLIC ${Protobuf_INCLUDE_DIRS}
 )
 
+find_package(Threads REQUIRED)
+
 target_link_libraries(
         mumble_protocol
         PUBLIC Threads::Threads
