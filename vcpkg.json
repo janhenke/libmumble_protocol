@@ -12,6 +12,10 @@
       "version>=": "1.83.0"
     },
     {
+      "name": "catch2",
+      "version>=": "3.5.0"
+    },
+    {
       "name": "opus",
       "version>=": "1.4"
     },
