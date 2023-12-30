@@ -9,13 +9,31 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL Clang)
 	endif ()
 endif ()
 
+# Place all output binaries into the root of the build directory
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+
+set(BOOST_REQUIRED_VERSION 1.83)
+
 include(GNUInstallDirs)
+include(GenerateExportHeader)
+include(CheckIPOSupported)
+# check for LTO support in the compiler, raise a fatal error is unsupported
+check_ipo_supported()
 
-# Use static boost libraries when possible
-option(Boost_USE_STATIC_LIBS "Use static boost libraries when possible" OFF)
-set(BOOST_REQUIRED_VERSION 1.71)
+option(BUILD_CLIENT "Build the client library" ON)
+option(BUILD_SERVER "Build the server library" ON)
+option(BUILD_TEST "Build the test executables" ON)
 
-#add_subdirectory(mumble_protocol)
+if (${BUILD_TEST})
+	enable_testing()
+	find_package(Catch2 3 REQUIRED)
+	include(CTest)
+	include(Catch)
+endif ()
+
+add_subdirectory(common)
+
 #add_subdirectory(src)
 
 #enable_testing()
