@@ -6,6 +6,7 @@
 
 #include <array>
 #include <bit>
+#include <cstddef>
 #include <stdexcept>
 
 namespace libmumble_protocol::common {
