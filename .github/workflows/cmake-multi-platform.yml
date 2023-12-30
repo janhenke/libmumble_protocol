@@ -20,7 +20,7 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
         build_type: [ Debug, Release ]
-        c_compiler: [ cl, clang, gcc ]
+        c_compiler: [ cl, clang-15, gcc-13 ]
         include:
           - os: macos-latest
             c_compiler: $(brew --prefix llvm@15)/bin/clang
@@ -38,13 +38,15 @@ jobs:
           - os: macos-latest
             c_compiler: cl
           - os: macos-latest
-            c_compiler: gcc
+            c_compiler: clang-15
+          - os: macos-latest
+            c_compiler: gcc-13
           - os: ubuntu-latest
             c_compiler: cl
           - os: windows-latest
-            c_compiler: clang
+            c_compiler: clang-15
           - os: windows-latest
-            c_compiler: gcc
+            c_compiler: gcc-13
 
     steps:
       - uses: actions/github-script@v6
