@@ -4,6 +4,7 @@
 
 #include "util.hpp"
 
+#include <array>
 #include <bit>
 #include <stdexcept>
 
