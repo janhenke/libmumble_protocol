@@ -19,8 +19,8 @@ jobs:
 
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
-        build_type: [ Debug, Release ]
         toolchain: [ GNU, LLVM, MSVC ]
+        build_type: [ Debug, Release ]
         include:
           - os: macos-latest
             toolchain: LLVM
