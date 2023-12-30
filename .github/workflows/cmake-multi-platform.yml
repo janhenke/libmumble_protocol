@@ -23,8 +23,8 @@ jobs:
         c_compiler: [ cl, clang-15, gcc-13 ]
         include:
           - os: macos-latest
-            c_compiler: $(brew --prefix llvm@15)/bin/clang
-            cpp_compiler: $(brew --prefix llvm@15)/bin/clang++
+            c_compiler: gcc-13
+            cpp_compiler: g++-13
           - os: ubuntu-latest
             c_compiler: clang-15
             cpp_compiler: clang++-15
@@ -39,8 +39,6 @@ jobs:
             c_compiler: cl
           - os: macos-latest
             c_compiler: clang-15
-          - os: macos-latest
-            c_compiler: gcc-13
           - os: ubuntu-latest
             c_compiler: cl
           - os: windows-latest
