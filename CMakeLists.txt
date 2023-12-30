@@ -18,8 +18,8 @@ set(BOOST_REQUIRED_VERSION 1.83)
 include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(CheckIPOSupported)
-# check for LTO support in the compiler, raise a fatal error is unsupported
-check_ipo_supported()
+# check for LTO support in the compiler
+check_ipo_supported(RESULT LTO_SUPPORTED)
 
 option(BUILD_CLIENT "Build the client library" ON)
 option(BUILD_SERVER "Build the server library" ON)
