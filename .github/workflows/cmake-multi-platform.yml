@@ -20,31 +20,35 @@ jobs:
       matrix:
         os: [ macos-latest, ubuntu-latest, windows-latest ]
         build_type: [ Debug, Release ]
-        c_compiler: [ cl, clang-15, gcc-13 ]
+        toolchain: [ GNU, LLVM, MSVC ]
         include:
           - os: macos-latest
+            toolchain: LLVM
+            c_compiler: $(brew --prefix llvm@15)/bin/clang
+            cpp_compiler: $(brew --prefix llvm@15)/bin/clang++
+          - os: ubuntu-latest
+            toolchain: GNU
             c_compiler: gcc-13
             cpp_compiler: g++-13
           - os: ubuntu-latest
+            toolchain: LLVM
             c_compiler: clang-15
             cpp_compiler: clang++-15
-          - os: ubuntu-latest
-            c_compiler: gcc-13
-            cpp_compiler: g++-13
           - os: windows-latest
+            toolchain: MSVC
             c_compiler: cl
             cpp_compiler: cl
         exclude:
           - os: macos-latest
-            c_compiler: cl
+            toolchain: GNU
           - os: macos-latest
-            c_compiler: clang-15
+            toolchain: MSVC
           - os: ubuntu-latest
-            c_compiler: cl
+            toolchain: MSVC
           - os: windows-latest
-            c_compiler: clang-15
+            toolchain: GNU
           - os: windows-latest
-            c_compiler: gcc-13
+            toolchain: LLVM
 
     steps:
       - uses: actions/github-script@v6
