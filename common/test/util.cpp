@@ -8,6 +8,108 @@
 
 #include <catch2/catch_test_macros.hpp>
 
+TEST_CASE("Test the readIntegerFromNetworkBuffer function", "[common]") {
+
+	SECTION("Read uint8_t") {
+
+		const std::uint8_t expected = 0xff;
+		const auto data = std::array<const std::byte, sizeof(std::uint8_t)>{std::byte{0xff}};
+
+		const auto result = libmumble_protocol::common::readIntegerFromNetworkBuffer<std::uint8_t>(data);
+
+		REQUIRE(sizeof(result) == sizeof(expected));
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Read uint16_t") {
+
+		const std::uint16_t expected = 0xff00;
+		const auto data = std::array<const std::byte, sizeof(std::uint16_t)>{std::byte{0xff}, std::byte{0x00}};
+
+		const auto result = libmumble_protocol::common::readIntegerFromNetworkBuffer<std::uint16_t>(data);
+
+		REQUIRE(sizeof(result) == sizeof(expected));
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Read uint32_t") {
+
+		const std::uint32_t expected = 0xdeadff00;
+		const auto data = std::array<const std::byte, sizeof(std::uint32_t)>{std::byte{0xde}, std::byte{0xad},
+																			 std::byte{0xff}, std::byte{0x00}};
+
+		const auto result = libmumble_protocol::common::readIntegerFromNetworkBuffer<std::uint32_t>(data);
+
+		REQUIRE(sizeof(result) == sizeof(expected));
+		REQUIRE(result == expected);
+	}
+
+	SECTION("Read uint64_t") {
+
+		const std::uint64_t expected = 0xcafebabe'deadf0f0;
+		const auto data = std::array<const std::byte, sizeof(std::uint64_t)>{
+			std::byte{0xca}, std::byte{0xfe}, std::byte{0xba}, std::byte{0xbe},
+			std::byte{0xde}, std::byte{0xad}, std::byte{0xf0}, std::byte{0xf0}};
+
+		const auto result = libmumble_protocol::common::readIntegerFromNetworkBuffer<std::uint64_t>(data);
+
+		REQUIRE(sizeof(result) == sizeof(expected));
+		REQUIRE(result == expected);
+	}
+}
+
+TEST_CASE("Test the writeIntegerToNetworkBuffer function", "[common]") {
+
+	SECTION("Write uint8_t") {
+
+		const std::uint8_t input = 0xff;
+		const auto expected = std::array{std::byte{0xff}};
+		std::array<std::byte, sizeof(std::uint8_t)> buffer{};
+
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+
+		REQUIRE(result == sizeof(input));
+		REQUIRE(buffer == expected);
+	}
+
+	SECTION("Write uint16_t") {
+
+		const std::uint16_t input = 0xff00;
+		const auto expected = std::array{std::byte{0xff}, std::byte{0x0}};
+		std::array<std::byte, sizeof(std::uint16_t)> buffer{};
+
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+
+		REQUIRE(result == sizeof(input));
+		REQUIRE(buffer == expected);
+	}
+
+	SECTION("Write uint32_t") {
+
+		const std::uint32_t input = 0xdeadff00;
+		const auto expected = std::array{std::byte{0xde}, std::byte{0xad}, std::byte{0xff}, std::byte{0x00}};
+		std::array<std::byte, sizeof(std::uint32_t)> buffer{};
+
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+
+		REQUIRE(result == sizeof(input));
+		REQUIRE(buffer == expected);
+	}
+
+	SECTION("Write uint64_t") {
+
+		const std::uint64_t input = 0xcafebabe'deadf0f0;
+		const auto expected = std::array{std::byte{0xca}, std::byte{0xfe}, std::byte{0xba}, std::byte{0xbe},
+										 std::byte{0xde}, std::byte{0xad}, std::byte{0xf0}, std::byte{0xf0}};
+		std::array<std::byte, sizeof(std::uint64_t)> buffer{};
+
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+
+		REQUIRE(result == sizeof(input));
+		REQUIRE(buffer == expected);
+	}
+}
+
 TEST_CASE("Test the mumble protocol variable integer decode function", "[common]") {
 
 	SECTION("Decode single byte") {

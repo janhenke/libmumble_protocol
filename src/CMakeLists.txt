@@ -7,12 +7,6 @@ check_ipo_supported()
 add_library(
         mumble_client
         SHARED
-        protocol/protocol.h
-        protocol/control/declarations.h
-        protocol/control/Header.cpp
-        protocol/control/Header.h
-        protocol/util.cpp
-        protocol/util.h
         core/Client.cpp
         core/Client.h
         protocol/control/VersionPacket.h

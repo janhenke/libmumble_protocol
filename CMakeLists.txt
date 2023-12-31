@@ -35,11 +35,3 @@ endif ()
 add_subdirectory(common)
 
 #add_subdirectory(src)
-
-#enable_testing()
-#add_subdirectory(test)
-
-#option(BUILD_EXAMPLE "Build example app" ON)
-#if (BUILD_EXAMPLE)
-#	add_subdirectory(example)
-#endif ()

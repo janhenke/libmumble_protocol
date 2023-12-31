@@ -13,6 +13,9 @@ add_library(
         STATIC
         ${MUMBLE_PROTOBUF_SOURCE_FILES}
         ${MUMBLE_PROTOBUF_HEADER_FILES}
+        src/packet_definition.hpp
+        src/pimpl.hpp
+        src/pimpl_impl.hpp
         src/util.cpp
         src/util.hpp
 )
