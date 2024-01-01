@@ -36,7 +36,7 @@ class Pimpl {
 	T &operator*();
 };
 
-#define DECLARE_PIMPL(T) PROPAGATE_CONST(Pimpl<T>)
+#define DECLARE_PIMPL(T) PROPAGATE_CONST(libmumble_protocol::common::Pimpl<T>)
 
 }// namespace libmumble_protocol::common
 

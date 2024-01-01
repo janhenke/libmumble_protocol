@@ -34,4 +34,6 @@ endif ()
 
 add_subdirectory(common)
 
-#add_subdirectory(src)
+if (${BUILD_CLIENT})
+	add_subdirectory(client)
+endif ()

@@ -5,7 +5,10 @@
   "dependencies": [
     {
       "name": "asio",
-      "version>=": "1.28.1"
+      "version>=": "1.28.1",
+      "features": [
+        "openssl"
+      ]
     },
     {
       "name": "boost-program-options",

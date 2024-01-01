@@ -164,8 +164,17 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPack
 };
 
 struct MumbleCryptographySetupPacket : public MumbleControlPacket {
-	MumbleCryptographySetupPacket() = default;
+	MumbleCryptographySetupPacket(std::span<const std::byte> &key, std::span<const std::byte> &clientNonce,
+								  std::span<const std::byte> &serverNonce);
 	explicit MumbleCryptographySetupPacket(std::span<const std::byte>);
+
+	std::span<const std::byte> key() const { return as_bytes(std::span(m_cryptSetup.key())); }
+	std::span<const std::byte> clientNonce() const { return as_bytes(std::span(m_cryptSetup.client_nonce())); }
+	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(m_cryptSetup.server_nonce())); }
+
+   protected:
+	PacketType packetType() const override;
+	const google::protobuf::MessageLite &message() const override;
 
    private:
 	MumbleProto::CryptSetup m_cryptSetup;
