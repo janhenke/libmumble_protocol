@@ -124,24 +124,4 @@ std::size_t encodeVariableInteger(std::span<std::byte> buffer, const std::int64_
 	}
 }
 
-std::tuple<PacketType, std::span<const std::byte>>
-parseNetworkPaket(std::span<const std::byte, maxPacketLength> buffer) {
-
-	const auto packetType = static_cast<PacketType>(readIntegerFromNetworkBuffer<std::uint16_t>(buffer.first<2>()));
-	const auto payloadLength = readIntegerFromNetworkBuffer<std::uint32_t>(buffer.subspan<2, 4>());
-
-	return {packetType, buffer.subspan(headerLength, payloadLength)};
-}
-
-void serializeProtocolMessage(std::span<std::byte, maxPacketLength> buffer, PacketType packetType,
-							  google::protobuf::MessageLite &message) {
-	const auto payloadLength = message.ByteSizeLong();
-
-	writeIntegerToNetworkBuffer(static_cast<std::uint16_t>(packetType), buffer.first<sizeof(std::uint16_t)>());
-	writeIntegerToNetworkBuffer(static_cast<std::uint32_t>(payloadLength),
-								buffer.subspan<sizeof(std::uint16_t), sizeof(std::uint32_t)>());
-
-	message.SerializeToArray(buffer.data() + headerLength, maxPayloadLength);
-}
-
 }// namespace libmumble_protocol::common

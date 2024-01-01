@@ -9,7 +9,7 @@
 
 #include <utility>
 
-namespace libmumble::server {
+namespace libmumble_protocol::common {
 
 template<typename T>
 Pimpl<T>::Pimpl() : m{new T{}} {}
@@ -31,6 +31,6 @@ T &Pimpl<T>::operator*() {
 	return *m.get();
 }
 
-}// namespace libmumble::server
+}// namespace libmumble_protocol::common
 
 #endif//LIBMUMBLE_SERVER_PIMPL_IMPL_HPP

@@ -5,9 +5,7 @@
 #pragma once
 
 #include "mumble_protocol_common_export.h"
-#include "packet_definition.hpp"
-
-#include <google/protobuf/message_lite.h>
+#include "packet.hpp"
 
 #include <bit>
 #include <concepts>
@@ -46,11 +44,5 @@ MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<std::size_t, std::int64_t>
 decodeVariableInteger(std::span<const std::byte> buffer);
 
 MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t encodeVariableInteger(std::span<std::byte> buffer, std::int64_t value);
-
-MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<PacketType, std::span<const std::byte>>
-	parseNetworkPaket(std::span<const std::byte, maxPacketLength>);
-
-MUMBLE_PROTOCOL_COMMON_EXPORT void serializeProtocolMessage(std::span<std::byte, maxPacketLength>, PacketType,
-															google::protobuf::MessageLite &);
 
 }// namespace libmumble_protocol::common

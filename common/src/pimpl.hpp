@@ -16,7 +16,7 @@
 
 #include <memory>
 
-namespace libmumble::server {
+namespace libmumble_protocol::common {
 
 template<typename T>
 class Pimpl {
@@ -38,6 +38,6 @@ class Pimpl {
 
 #define DECLARE_PIMPL(T) PROPAGATE_CONST(Pimpl<T>)
 
-}// namespace libmumble::server
+}// namespace libmumble_protocol::common
 
 #endif//LIBMUMBLE_SERVER_PIMPL_HPP
