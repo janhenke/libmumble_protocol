@@ -70,7 +70,7 @@ jobs:
         # Workaround until https://github.com/actions/runner-images/issues/8659 is resolved
         if: runner.os == 'Linux'
         run: |
-          sudo cp tools/llvm-snapshot.gpg.key.asc /etc/apt/trusted.gpg.d/llvm-snapshot.asc
+          sudo wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
           sudo apt-get -qq update
           sudo apt-get -qq install clang-16
