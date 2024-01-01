@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <cstring>
 #include <span>
+#include <stdexcept>
 #include <tuple>
 
 namespace libmumble_protocol::common {
@@ -33,11 +34,17 @@ MUMBLE_PROTOCOL_COMMON_EXPORT T readIntegerFromNetworkBuffer(std::span<const std
 	return swapNetworkBytes(result);
 }
 
-MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t writeIntegerToNetworkBuffer(std::integral auto const value,
-																	  std::span<std::byte, sizeof(value)> buffer) {
+MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t writeIntegerToNetworkBuffer(std::span<std::byte> buffer,
+																	  std::integral auto const value) {
+	const auto valueSize = sizeof(value);
+	if (std::size(buffer) < valueSize) {
+		throw std::range_error("Buffer too small for value " + std::to_string(value)
+							   + ". Buffer size: " + std::to_string(std::size(buffer)));
+	}
+
 	auto temp = swapNetworkBytes(value);
-	std::memcpy(buffer.data(), &temp, sizeof(value));
-	return sizeof(value);
+	std::memcpy(buffer.data(), &temp, valueSize);
+	return valueSize;
 }
 
 MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<std::size_t, std::int64_t>

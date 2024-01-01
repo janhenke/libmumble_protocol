@@ -29,10 +29,8 @@ std::vector<std::byte> MumbleControlPacket::serialize() const {
 	std::vector<std::byte> buffer;
 	buffer.reserve(headerLength + payloadBytes);
 	auto bufferBegin = std::begin(buffer);
-	writeIntegerToNetworkBuffer(static_cast<std::uint16_t>(packetType),
-								std::span<std::byte, sizeof(std::uint16_t)>(bufferBegin, 2));
-	writeIntegerToNetworkBuffer(static_cast<std::uint32_t>(payloadBytes),
-								std::span<std::byte, sizeof(std::uint32_t)>(bufferBegin + 2, 4));
+	writeIntegerToNetworkBuffer(std::span(bufferBegin, 2), static_cast<std::uint16_t>(packetType));
+	writeIntegerToNetworkBuffer(std::span(bufferBegin + 2, 4), static_cast<std::uint32_t>(payloadBytes));
 
 	message.SerializeToArray(buffer.data() + headerLength, static_cast<int>(payloadBytes));
 

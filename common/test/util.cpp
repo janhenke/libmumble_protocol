@@ -66,7 +66,7 @@ TEST_CASE("Test the writeIntegerToNetworkBuffer function", "[common]") {
 		const auto expected = std::array{std::byte{0xff}};
 		std::array<std::byte, sizeof(std::uint8_t)> buffer{};
 
-		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(buffer, input);
 
 		REQUIRE(result == sizeof(input));
 		REQUIRE(buffer == expected);
@@ -78,7 +78,7 @@ TEST_CASE("Test the writeIntegerToNetworkBuffer function", "[common]") {
 		const auto expected = std::array{std::byte{0xff}, std::byte{0x0}};
 		std::array<std::byte, sizeof(std::uint16_t)> buffer{};
 
-		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(buffer, input);
 
 		REQUIRE(result == sizeof(input));
 		REQUIRE(buffer == expected);
@@ -90,7 +90,7 @@ TEST_CASE("Test the writeIntegerToNetworkBuffer function", "[common]") {
 		const auto expected = std::array{std::byte{0xde}, std::byte{0xad}, std::byte{0xff}, std::byte{0x00}};
 		std::array<std::byte, sizeof(std::uint32_t)> buffer{};
 
-		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(buffer, input);
 
 		REQUIRE(result == sizeof(input));
 		REQUIRE(buffer == expected);
@@ -103,7 +103,7 @@ TEST_CASE("Test the writeIntegerToNetworkBuffer function", "[common]") {
 										 std::byte{0xde}, std::byte{0xad}, std::byte{0xf0}, std::byte{0xf0}};
 		std::array<std::byte, sizeof(std::uint64_t)> buffer{};
 
-		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(input, buffer);
+		const auto result = libmumble_protocol::common::writeIntegerToNetworkBuffer(buffer, input);
 
 		REQUIRE(result == sizeof(input));
 		REQUIRE(buffer == expected);
