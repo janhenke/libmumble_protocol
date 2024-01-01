@@ -74,11 +74,6 @@ MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::string_view username, st
 	m_authenticate.set_opus(opusSupported);
 }
 
-MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::span<const std::byte> buffer)() {
-	const auto bufferSize = std::size(buffer);
-	m_authenticate.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
-}
-
 MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::span<const std::byte> buffer) {
 	const auto bufferSize = std::size(buffer);
 	m_authenticate.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
