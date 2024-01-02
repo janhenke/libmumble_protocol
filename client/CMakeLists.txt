@@ -24,6 +24,7 @@ set_target_properties(
 
 target_include_directories(
         mumble_client
+        PUBLIC lib
         PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
 )
@@ -79,4 +80,5 @@ target_link_libraries(
         PRIVATE Boost::program_options
         PRIVATE Opus::opus
         PRIVATE RtAudio::rtaudio
+        PRIVATE spdlog::spdlog
 )

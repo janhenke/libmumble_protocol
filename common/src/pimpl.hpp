@@ -7,13 +7,6 @@
 
 #pragma once
 
-#if __has_include(<experimental/propagate_const>)
-#include <experimental/propagate_const>
-#define PROPAGATE_CONST(T) std::experimental::propagate_const<T>
-#else
-#define PROPAGATE_CONST(T) T
-#endif
-
 #include <memory>
 
 namespace libmumble_protocol::common {
@@ -35,8 +28,6 @@ class Pimpl {
 
 	T &operator*();
 };
-
-#define DECLARE_PIMPL(T) PROPAGATE_CONST(libmumble_protocol::common::Pimpl<T>)
 
 }// namespace libmumble_protocol::common
 

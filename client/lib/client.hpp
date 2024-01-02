@@ -22,11 +22,11 @@ class MUMBLE_CLIENT_EXPORT MumbleClient final {
 
 	MumbleClient(std::string_view serverName, std::uint16_t port, std::string_view userName,
 				 bool validateServerCertificate = true);
-	~MumbleClient() = default;
+	~MumbleClient();
 
    private:
 	struct Impl;
-	DECLARE_PIMPL(Impl) m_pimpl;
+	libmumble_protocol::common::Pimpl<Impl> m_pimpl;
 };
 
 }// namespace libmumble_protocol::client

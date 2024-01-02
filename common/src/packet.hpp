@@ -72,10 +72,12 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
 
 	[[nodiscard]] std::vector<std::byte> serialize() const;
 
+	[[nodiscard]] std::string debugString() const;
+
    protected:
 	[[nodiscard]] virtual PacketType packetType() const = 0;
 
-	[[nodiscard]] virtual google::protobuf::MessageLite const &message() const = 0;
+	[[nodiscard]] virtual google::protobuf::Message const &message() const = 0;
 };
 
 struct MumbleNumericVersion {
@@ -111,7 +113,7 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlP
 
    protected:
 	PacketType packetType() const override;
-	google::protobuf::MessageLite const &message() const override;
+	google::protobuf::Message const &message() const override;
 
    private:
 	MumbleProto::Version m_version;
@@ -143,13 +145,14 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCon
 
    protected:
 	PacketType packetType() const override;
-	google::protobuf::MessageLite const &message() const override;
+	google::protobuf::Message const &message() const override;
 
    private:
 	MumbleProto::Authenticate m_authenticate;
 };
 
 struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacket {
+	explicit MumblePingPacket(std::uint64_t);
 	MumblePingPacket(std::uint64_t timestamp, std::uint32_t good, std::uint32_t late, std::uint32_t lost,
 					 std::uint32_t reSync, std::uint32_t udpPackets, std::uint32_t tcpPackets, float udpPingAverage,
 					 float udpPingVariation, float tcpPingAverage, float tcpPingVariation);
@@ -157,7 +160,7 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPack
 
    protected:
 	PacketType packetType() const override;
-	const google::protobuf::MessageLite &message() const override;
+	const google::protobuf::Message &message() const override;
 
    private:
 	MumbleProto::Ping m_ping;
@@ -174,7 +177,7 @@ struct MumbleCryptographySetupPacket : public MumbleControlPacket {
 
    protected:
 	PacketType packetType() const override;
-	const google::protobuf::MessageLite &message() const override;
+	const google::protobuf::Message &message() const override;
 
    private:
 	MumbleProto::CryptSetup m_cryptSetup;

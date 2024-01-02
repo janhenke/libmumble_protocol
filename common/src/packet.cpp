@@ -27,8 +27,7 @@ std::vector<std::byte> MumbleControlPacket::serialize() const {
 	const auto &message = this->message();
 	const auto payloadBytes = message.ByteSizeLong();
 
-	std::vector<std::byte> buffer;
-	buffer.reserve(headerLength + payloadBytes);
+	std::vector<std::byte> buffer(headerLength + payloadBytes);
 	auto bufferBegin = std::begin(buffer);
 	writeIntegerToNetworkBuffer(std::span(bufferBegin, 2), static_cast<std::uint16_t>(packetType));
 	writeIntegerToNetworkBuffer(std::span(bufferBegin + 2, 4), static_cast<std::uint32_t>(payloadBytes));
@@ -37,6 +36,8 @@ std::vector<std::byte> MumbleControlPacket::serialize() const {
 
 	return buffer;
 }
+
+std::string MumbleControlPacket::debugString() const { return message().DebugString(); }
 
 /*
  * Mumble version packet (ID 0)
@@ -61,7 +62,7 @@ MumbleVersionPacket::MumbleVersionPacket(const std::uint16_t majorVersion, const
 }
 
 PacketType MumbleVersionPacket::packetType() const { return PacketType::Version; }
-google::protobuf::MessageLite const &MumbleVersionPacket::message() const { return m_version; }
+google::protobuf::Message const &MumbleVersionPacket::message() const { return m_version; }
 
 /*
  * Mumble authenticate packet (ID 2)
@@ -87,11 +88,13 @@ MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::span<const std::byte> bu
 }
 
 PacketType MumbleAuthenticatePacket::packetType() const { return PacketType::Authenticate; }
-google::protobuf::MessageLite const &MumbleAuthenticatePacket::message() const { return m_authenticate; }
+google::protobuf::Message const &MumbleAuthenticatePacket::message() const { return m_authenticate; }
 
 /*
  * Mumble ping packet (ID 3)
  */
+
+MumblePingPacket::MumblePingPacket(std::uint64_t timestamp) { m_ping.set_timestamp(timestamp); }
 
 MumblePingPacket::MumblePingPacket(std::uint64_t timestamp, std::uint32_t good, std::uint32_t late, std::uint32_t lost,
 								   std::uint32_t reSync, std::uint32_t udpPackets, std::uint32_t tcpPackets,
@@ -115,7 +118,7 @@ MumblePingPacket::MumblePingPacket(std::span<const std::byte> buffer) {
 	m_ping.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 }
 PacketType MumblePingPacket::packetType() const { return PacketType::Ping; }
-const google::protobuf::MessageLite &MumblePingPacket::message() const { return m_ping; }
+const google::protobuf::Message &MumblePingPacket::message() const { return m_ping; }
 
 /*
  * Mumble crypt setup packet (ID 15)
@@ -153,6 +156,6 @@ MumbleCryptographySetupPacket::MumbleCryptographySetupPacket(std::span<const std
 }
 
 PacketType MumbleCryptographySetupPacket::packetType() const { return PacketType::CryptSetup; }
-const google::protobuf::MessageLite &MumbleCryptographySetupPacket::message() const { return m_cryptSetup; }
+const google::protobuf::Message &MumbleCryptographySetupPacket::message() const { return m_cryptSetup; }
 
 }// namespace libmumble_protocol::common
