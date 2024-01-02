@@ -2,23 +2,20 @@
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
-protobuf_generate_cpp(
-        MUMBLE_PROTOBUF_SOURCE_FILES
-        MUMBLE_PROTOBUF_HEADER_FILES
-        src/Mumble.proto
-)
-
 add_library(
         mumble_protocol_common
         STATIC
-        ${MUMBLE_PROTOBUF_SOURCE_FILES}
-        ${MUMBLE_PROTOBUF_HEADER_FILES}
+        src/Mumble.proto
+        src/MumbleUDP.proto
         src/packet.cpp
         src/packet.hpp
         src/pimpl.hpp
         src/pimpl_impl.hpp
         src/util.cpp
         src/util.hpp
+)
+protobuf_generate(
+    TARGET mumble_protocol_common
 )
 generate_export_header(mumble_protocol_common)
 
@@ -37,7 +34,7 @@ target_include_directories(
         mumble_protocol_common
         PUBLIC src
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
-        PUBLIC ${Protobuf_INCLUDE_DIRS}
+        PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/src
 )
 
 target_link_libraries(

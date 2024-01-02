@@ -47,7 +47,7 @@ MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer
 	const auto bufferSize = std::size(buffer);
 	m_version.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 	// replace instance with the value from the package, cannot assign because of const members
-	std::construct_at(&m_numericVersion, m_version.version());
+	std::construct_at(&m_numericVersion, m_version.version_v1());
 }
 
 MumbleVersionPacket::MumbleVersionPacket(const std::uint16_t majorVersion, const std::uint8_t minorVersion,
@@ -55,7 +55,7 @@ MumbleVersionPacket::MumbleVersionPacket(const std::uint16_t majorVersion, const
 										 const std::string_view operatingSystem,
 										 const std::string_view operatingSystemVersion)
 	: m_version(), m_numericVersion(majorVersion, minorVersion, patchVersion) {
-	m_version.set_version(static_cast<std::uint32_t>(m_numericVersion));
+	m_version.set_version_v1(static_cast<std::uint32_t>(m_numericVersion));
 	m_version.set_release(std::string(release));
 	m_version.set_os(std::string(operatingSystem));
 	m_version.set_os_version(std::string(operatingSystemVersion));
