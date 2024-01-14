@@ -35,6 +35,10 @@ jobs:
             c_compiler: clang-16
             cpp_compiler: clang++-16
           - os: windows-latest
+            toolchain: LLVM
+            c_compiler: clang-cl
+            cpp_compiler: clang-cl
+          - os: windows-latest
             toolchain: MSVC
             c_compiler: cl
             cpp_compiler: cl
@@ -47,8 +51,6 @@ jobs:
             toolchain: MSVC
           - os: windows-latest
             toolchain: GNU
-          - os: windows-latest
-            toolchain: LLVM
 
     steps:
       - uses: actions/github-script@v6
