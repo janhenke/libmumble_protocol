@@ -32,8 +32,8 @@ jobs:
             cpp_compiler: g++-13
           - os: ubuntu-latest
             toolchain: LLVM
-            c_compiler: clang-16
-            cpp_compiler: clang++-16
+            c_compiler: clang-17
+            cpp_compiler: clang++-17
           - os: windows-latest
             toolchain: LLVM
             msvc_toolchain: clang-cl
@@ -66,14 +66,14 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Update Ubuntu images to Clang 16
+      - name: Update Ubuntu images to Clang 17
         # Workaround until https://github.com/actions/runner-images/issues/8659 is resolved
         if: runner.os == 'Linux'
         run: |
           sudo wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
           sudo add-apt-repository "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-16 main"
           sudo apt-get -qq update
-          sudo apt-get -qq install clang-16
+          sudo apt-get -qq install clang-17
 
       - name: Configure CMake (Unix)
         if: runner.os != 'Windows'
