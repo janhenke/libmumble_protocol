@@ -36,7 +36,7 @@ jobs:
             cpp_compiler: clang++-17
           - os: windows-latest
             toolchain: LLVM
-            msvc_toolchain: clang-cl
+            msvc_toolchain: ClangCL
           - os: windows-latest
             toolchain: MSVC
             msvc_toolchain: v143
