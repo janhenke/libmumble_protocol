@@ -36,12 +36,10 @@ jobs:
             cpp_compiler: clang++-16
           - os: windows-latest
             toolchain: LLVM
-            c_compiler: clang-cl
-            cpp_compiler: clang-cl
+            msvc_toolchain: clang-cl
           - os: windows-latest
             toolchain: MSVC
-            c_compiler: cl
-            cpp_compiler: cl
+            msvc_toolchain: v143
         exclude:
           - os: macos-latest
             toolchain: GNU
@@ -95,8 +93,8 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -G "Visual Studio 17 2022"
+          -T ${{ matrix.msvc_toolchain }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
           -S ${{ github.workspace }}
