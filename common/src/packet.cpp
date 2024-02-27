@@ -13,12 +13,14 @@
 namespace libmumble_protocol::common {
 
 std::tuple<PacketType, std::span<const std::byte>>
-parseNetworkBuffer(std::span<const std::byte, maxPacketLength> buffer) {
+parseNetworkBuffer(std::span<const std::byte, kMaxPacketLength> buffer) {
 
-	const auto packetType = static_cast<PacketType>(readIntegerFromNetworkBuffer<std::uint16_t>(buffer.first<2>()));
-	const auto payloadLength = readIntegerFromNetworkBuffer<std::uint32_t>(buffer.subspan<2, 4>());
+	const auto header = std::bit_cast<Header>(buffer.subspan<kHeaderLength>());
 
-	return {packetType, buffer.subspan(headerLength, payloadLength)};
+	const auto packetType = static_cast<PacketType>(swapNetworkBytes(header.packet_type));
+	const auto payloadLength = swapNetworkBytes(header.payload_length);
+
+	return {packetType, buffer.subspan(kHeaderLength, payloadLength)};
 }
 
 std::vector<std::byte> MumbleControlPacket::serialize() const {
@@ -26,13 +28,13 @@ std::vector<std::byte> MumbleControlPacket::serialize() const {
 	const auto packetType = this->packetType();
 	const auto &message = this->message();
 	const auto payloadBytes = message.ByteSizeLong();
+	const Header header{swapNetworkBytes(std::to_underlying(packetType)),
+						static_cast<uint32_t>(swapNetworkBytes(payloadBytes))};
 
-	std::vector<std::byte> buffer(headerLength + payloadBytes);
-	auto bufferBegin = std::begin(buffer);
-	writeIntegerToNetworkBuffer(std::span(bufferBegin, 2), static_cast<std::uint16_t>(packetType));
-	writeIntegerToNetworkBuffer(std::span(bufferBegin + 2, 4), static_cast<std::uint32_t>(payloadBytes));
-
-	message.SerializeToArray(buffer.data() + headerLength, static_cast<int>(payloadBytes));
+	std::vector<std::byte> buffer(kHeaderLength + payloadBytes);
+	std::byte *data = buffer.data();
+	std::memcpy(data, &header, kHeaderLength);
+	message.SerializeToArray(data + kHeaderLength, static_cast<int>(payloadBytes));
 
 	return buffer;
 }

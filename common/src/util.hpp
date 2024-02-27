@@ -25,28 +25,6 @@ MUMBLE_PROTOCOL_COMMON_EXPORT auto swapNetworkBytes(std::integral auto const i) 
 	}
 }
 
-template<typename T>
-	requires(std::integral<T>)
-MUMBLE_PROTOCOL_COMMON_EXPORT T readIntegerFromNetworkBuffer(std::span<const std::byte, sizeof(T)> buffer) {
-	T result;
-	std::memcpy(&result, buffer.data(), sizeof(T));
-
-	return swapNetworkBytes(result);
-}
-
-MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t writeIntegerToNetworkBuffer(std::span<std::byte> buffer,
-																	  std::integral auto const value) {
-	const auto valueSize = sizeof(value);
-	if (std::size(buffer) < valueSize) {
-		throw std::range_error("Buffer too small for value " + std::to_string(value)
-							   + ". Buffer size: " + std::to_string(std::size(buffer)));
-	}
-
-	auto temp = swapNetworkBytes(value);
-	std::memcpy(buffer.data(), &temp, valueSize);
-	return valueSize;
-}
-
 MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<std::size_t, std::int64_t>
 decodeVariableInteger(std::span<const std::byte> buffer);
 

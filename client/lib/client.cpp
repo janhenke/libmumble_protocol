@@ -29,7 +29,7 @@ struct MumbleClient::Impl final {
 
 	asio::steady_timer m_pingTimer;
 
-	std::array<std::byte, common::maxPacketLength> m_receiveBuffer;
+	std::array<std::byte, common::kMaxPacketLength> m_receiveBuffer;
 
 	Impl(std::string_view serverName, uint16_t port, std::string_view userName, bool validateServerCertificate)
 		: m_tlsContext(asio::ssl::context_base::tlsv13_client), m_tlsSocket(m_ioContext, m_tlsContext),
@@ -58,7 +58,7 @@ struct MumbleClient::Impl final {
 			pingTimerCompletionHandler();
 		});
 
-		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::headerLength),
+		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::kHeaderLength),
 						 [this](const std::error_code &error, std::size_t bytes_transferred) {
 							 readCompletionHandler(error, bytes_transferred);
 						 });
@@ -120,7 +120,7 @@ struct MumbleClient::Impl final {
 			case common::PacketType::SuggestConfig: not_implemented(); break;
 		}
 
-		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::headerLength),
+		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::kHeaderLength),
 						 [this](const std::error_code &error, std::size_t bytes_transferred) {
 							 readCompletionHandler(error, bytes_transferred);
 						 });
