@@ -12,7 +12,7 @@
 
 namespace libmumble_protocol::common {
 
-std::tuple<std::size_t, std::int64_t> decodeVariableInteger(std::span<const std::byte> buffer) {
+std::tuple<std::size_t, std::int64_t> DecodeVariableInteger(std::span<const std::byte> buffer) {
 
 	const std::size_t spanSize = std::size(buffer);
 
@@ -24,23 +24,23 @@ std::tuple<std::size_t, std::int64_t> decodeVariableInteger(std::span<const std:
 		if (spanSize < 2) { throw std::out_of_range{"Input buffer contains too few elements."}; }
 		std::uint16_t result = 0;
 		std::memcpy(&result, buffer.data(), 2);
-		return {2, swapNetworkBytes(result) & 0x3fff};
+		return {2, SwapNetworkBytes(result) & 0x3fff};
 	} else if ((buffer[0] & std::byte{0xe0}) == std::byte{0xc0}) {
 		if (spanSize < 3) { throw std::out_of_range{"Input buffer contains too few elements."}; }
 		std::uint32_t result = 0;
 		std::memcpy(&result, buffer.data(), 3);
-		result = swapNetworkBytes(result);
+		result = SwapNetworkBytes(result);
 		return {3, (result >> 8) & 0x1f'ffff};
 	} else if ((buffer[0] & std::byte{0xf0}) == std::byte{0xe0}) {
 		if (spanSize < 4) { throw std::out_of_range{"Input buffer contains too few elements."}; }
 		std::uint32_t result = 0;
 		std::memcpy(&result, buffer.data(), 4);
-		return {4, swapNetworkBytes(result) & 0x0fff'ffff};
+		return {4, SwapNetworkBytes(result) & 0x0fff'ffff};
 	} else if ((buffer[0] & std::byte{0xf0}) == std::byte{0xf0}) {
 
 		// handle recursive call
 		if ((buffer[0] & std::byte{0xfc}) == std::byte{0xf8}) {
-			const auto [count, result] = decodeVariableInteger(buffer.last(spanSize - 1));
+			const auto [count, result] = DecodeVariableInteger(buffer.last(spanSize - 1));
 			return {count + 1, ~result};
 		}
 
@@ -50,18 +50,18 @@ std::tuple<std::size_t, std::int64_t> decodeVariableInteger(std::span<const std:
 			case 0xf0:
 				if (spanSize < 5) { throw std::out_of_range{"Input buffer contains too few elements."}; }
 				std::memcpy(&i32, buffer.data() + 1, 4);
-				return {5, swapNetworkBytes(i32)};
+				return {5, SwapNetworkBytes(i32)};
 			case 0xf4:
 				if (spanSize < 9) { throw std::out_of_range{"Input buffer contains too few elements."}; }
 				std::memcpy(&i64, buffer.data() + 1, 8);
-				return {9, swapNetworkBytes(i64)};
+				return {9, SwapNetworkBytes(i64)};
 			case 0xfc: return {1, ~std::bit_cast<std::uint8_t>(buffer[0] & std::byte{0x03})};
 		}
 	}
 	return {0, 0};
 }
 
-std::size_t encodeVariableInteger(std::span<std::byte> buffer, const std::int64_t value) {
+std::size_t EncodeVariableInteger(std::span<std::byte> buffer, std::int64_t value) {
 
 	if (buffer.empty()) { throw std::out_of_range{"Invalid range specified."}; }
 
@@ -83,42 +83,38 @@ std::size_t encodeVariableInteger(std::span<std::byte> buffer, const std::int64_
 
 	if (input < 0x80) {
 		// Need top bit clear
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::uint8_t)>>(static_cast<std::uint8_t>(input));
-		std::memcpy(buffer.data() + offset, bytes.data(), 1);
+		const auto temp = static_cast<std::uint8_t>(input);
+		std::memcpy(buffer.data() + offset, &temp, 1);
 		return offset + 1;
 	} else if (input < 0x4000) {
 		// Need top two bits clear
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::uint16_t)>>(
-			swapNetworkBytes(static_cast<std::uint16_t>(input)));
-		std::memcpy(buffer.data() + offset, bytes.data(), 2);
+		const auto temp = SwapNetworkBytes(static_cast<std::uint16_t>(input));
+		std::memcpy(buffer.data() + offset, &temp, 2);
 		buffer[offset] = buffer[offset] | std::byte{0x80};
 		return offset + 2;
 	} else if (input < 0x200000) {
 		// Need top three bits clear
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::uint32_t)>>(
-			swapNetworkBytes(static_cast<std::uint32_t>(input << 8)));
-		std::memcpy(buffer.data() + offset, bytes.data(), 3);
+		const auto temp = SwapNetworkBytes(static_cast<std::uint32_t>(input << 8));
+		std::memcpy(buffer.data() + offset, &temp, 3);
 		buffer[offset] = buffer[offset] | std::byte{0xC0};
 		return offset + 3;
 	} else if (input < 0x10000000) {
 		// Need top four bits clear
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::uint32_t)>>(
-			swapNetworkBytes(static_cast<std::uint32_t>(input)));
-		std::memcpy(buffer.data() + offset, bytes.data(), 4);
+		const auto temp = SwapNetworkBytes(static_cast<std::uint32_t>(input));
+		std::memcpy(buffer.data() + offset, &temp, 4);
 		buffer[offset] = buffer[offset] | std::byte{0xE0};
 		return offset + 4;
 	} else if (input < 0x100000000LL) {
 		// It's a full 32-bit integer.
 		buffer[offset] = std::byte(0xF0);
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::uint32_t)>>(
-			swapNetworkBytes(static_cast<std::uint32_t>(input)));
-		std::memcpy(buffer.data() + offset + 1, bytes.data(), 4);
+		const auto temp = SwapNetworkBytes(static_cast<std::uint32_t>(input));
+		std::memcpy(buffer.data() + offset + 1, &temp, 4);
 		return offset + 5;
 	} else {
 		// It's a 64-bit value.
 		buffer[offset] = std::byte(0xF4);
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::int64_t)>>(
-			swapNetworkBytes(static_cast<std::int64_t>(input)));
+		const auto temp = SwapNetworkBytes(static_cast<std::int64_t>(input));
+		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::int64_t)>>(temp);
 		std::memcpy(buffer.data() + offset + 1, bytes.data(), 8);
 		return offset + 9;
 	}

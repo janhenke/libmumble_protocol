@@ -20,37 +20,37 @@ namespace libmumble_protocol::client {
 using namespace std::chrono_literals;
 
 struct MumbleClient::Impl final {
-	static constexpr auto s_pingPeriod = 20s;
+	static constexpr auto ping_period = 20s;
 
-	std::thread m_ioThread;
-	asio::io_context m_ioContext;
-	asio::ssl::context m_tlsContext;
-	asio::ssl::stream<asio::ip::tcp::socket> m_tlsSocket;
+	std::thread io_thread;
+	asio::io_context io_context;
+	asio::ssl::context tls_context;
+	asio::ssl::stream<asio::ip::tcp::socket> tls_socket;
 
-	asio::steady_timer m_pingTimer;
+	asio::steady_timer ping_timer;
 
-	std::array<std::byte, common::kMaxPacketLength> m_receiveBuffer;
+	std::array<std::byte, common::kMaxPacketLength> receive_buffer;
 
 	Impl(std::string_view serverName, uint16_t port, std::string_view userName, bool validateServerCertificate)
-		: m_tlsContext(asio::ssl::context_base::tlsv13_client), m_tlsSocket(m_ioContext, m_tlsContext),
-		  m_pingTimer(m_ioContext), m_receiveBuffer() {
+		: tls_context(asio::ssl::context_base::tlsv13_client), tls_socket(io_context, tls_context),
+		  ping_timer(io_context), receive_buffer() {
 
-		m_tlsContext.set_default_verify_paths();
-		m_tlsSocket.set_verify_mode(validateServerCertificate ? asio::ssl::verify_peer : asio::ssl::verify_none);
-		m_tlsSocket.set_verify_callback(asio::ssl::host_name_verification(std::string{serverName}));
+		tls_context.set_default_verify_paths();
+		tls_socket.set_verify_mode(validateServerCertificate ? asio::ssl::verify_peer : asio::ssl::verify_none);
+		tls_socket.set_verify_callback(asio::ssl::host_name_verification(std::string{serverName}));
 
-		asio::ip::tcp::resolver resolver{m_ioContext};
+		asio::ip::tcp::resolver resolver{io_context};
 		const auto &endpoints = resolver.resolve(serverName, std::to_string(port));
 
-		const auto connectedEndpoint = asio::connect(m_tlsSocket.next_layer(), endpoints);
+		const auto connectedEndpoint = asio::connect(tls_socket.next_layer(), endpoints);
 		spdlog::debug("Connected to endpoint: {}, port: {}", connectedEndpoint.address().to_string(),
 					  connectedEndpoint.port());
-		m_tlsSocket.lowest_layer().set_option(asio::ip::tcp::no_delay(true));
-		m_tlsSocket.handshake(asio::ssl::stream_base::client);
+		tls_socket.lowest_layer().set_option(asio::ip::tcp::no_delay(true));
+		tls_socket.handshake(asio::ssl::stream_base::client);
 
 		// start periodic ping sender
-		m_pingTimer.expires_after(s_pingPeriod);
-		m_pingTimer.async_wait([this](const std::error_code &ec) {
+		ping_timer.expires_after(ping_period);
+		ping_timer.async_wait([this](const std::error_code &ec) {
 			if (ec) {
 				spdlog::critical("Timer wait failed with {}", ec.message());
 				throw std::system_error(ec);
@@ -58,7 +58,7 @@ struct MumbleClient::Impl final {
 			pingTimerCompletionHandler();
 		});
 
-		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::kHeaderLength),
+		asio::async_read(tls_socket, asio::buffer(receive_buffer), asio::transfer_at_least(common::kHeaderLength),
 						 [this](const std::error_code &error, std::size_t bytes_transferred) {
 							 readCompletionHandler(error, bytes_transferred);
 						 });
@@ -69,24 +69,24 @@ struct MumbleClient::Impl final {
 
 		queuePacket(common::MumbleAuthenticatePacket(userName, "", {}, {}, true));
 
-		m_ioThread = std::thread{&asio::io_context::run, &m_ioContext};
+		io_thread = std::thread{&asio::io_context::run, &io_context};
 	}
 
 	~Impl() {
-		m_ioContext.stop();
-		m_ioThread.join();
+		io_context.stop();
+		io_thread.join();
 	}
 
-	void readCompletionHandler(const std::error_code &ec, std::size_t bytesTransferred) {
+	void readCompletionHandler(const std::error_code &ec, const std::size_t bytesTransferred) {
 		if (ec) {
 			spdlog::critical("Error reading from socket: {}", ec.message());
 			throw std::system_error(ec);
 		}
 
-		const auto bufferBegin = std::begin(m_receiveBuffer);
+		const auto bufferBegin = std::begin(receive_buffer);
 		spdlog::debug("Read {} bytes from Socket: {}", bytesTransferred, spdlog::to_hex(bufferBegin, bufferBegin + 32));
 
-		const auto [packetType, payload] = common::parseNetworkBuffer(m_receiveBuffer);
+		const auto [packetType, payload] = common::ParseNetworkBuffer(receive_buffer);
 		auto not_implemented = [&packetType]() {
 			spdlog::warn("No handler implemented for control packet type: {}",
 						 static_cast<std::underlying_type_t<enum common::PacketType>>(packetType));
@@ -120,14 +120,14 @@ struct MumbleClient::Impl final {
 			case common::PacketType::SuggestConfig: not_implemented(); break;
 		}
 
-		asio::async_read(m_tlsSocket, asio::buffer(m_receiveBuffer), asio::transfer_at_least(common::kHeaderLength),
+		asio::async_read(tls_socket, asio::buffer(receive_buffer), asio::transfer_at_least(common::kHeaderLength),
 						 [this](const std::error_code &error, std::size_t bytes_transferred) {
 							 readCompletionHandler(error, bytes_transferred);
 						 });
 	}
 
 	void queuePacket(const common::MumbleControlPacket &packet) {
-		asio::async_write(m_tlsSocket, asio::buffer(packet.serialize()),
+		asio::async_write(tls_socket, asio::buffer(packet.Serialize()),
 						  [](const std::error_code &ec, std::size_t bytes_transferred) {
 							  if (ec) {
 								  spdlog::critical("Error writing to socket: {}", ec.message());
@@ -142,8 +142,8 @@ struct MumbleClient::Impl final {
 		const auto timestamp = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
 		queuePacket(common::MumblePingPacket(timestamp));
 
-		m_pingTimer.expires_after(s_pingPeriod);
-		m_pingTimer.async_wait([this](const std::error_code &ec) {
+		ping_timer.expires_after(ping_period);
+		ping_timer.async_wait([this](const std::error_code &ec) {
 			if (ec) {
 				spdlog::critical("Timer wait failed with {}", ec.message());
 				throw std::system_error(ec);
@@ -173,7 +173,7 @@ struct MumbleClient::Impl final {
 
 MumbleClient::MumbleClient(std::string_view serverName, uint16_t port, std::string_view userName,
 						   bool validateServerCertificate)
-	: m_pimpl(serverName, port, userName, validateServerCertificate) {
+	: pimpl_(serverName, port, userName, validateServerCertificate) {
 	// Verify that the version of the library that we linked against is
 	// compatible with the version of the headers we compiled against.
 	GOOGLE_PROTOBUF_VERIFY_VERSION;

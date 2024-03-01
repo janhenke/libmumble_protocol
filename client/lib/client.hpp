@@ -18,7 +18,7 @@ namespace libmumble_protocol::client {
 
 class MUMBLE_CLIENT_EXPORT MumbleClient final {
    public:
-	static constexpr std::uint16_t s_defaultPort = 64738;
+	static constexpr std::uint16_t defaultPort = 64738;
 
 	MumbleClient(std::string_view serverName, std::uint16_t port, std::string_view userName,
 				 bool validateServerCertificate = true);
@@ -26,7 +26,7 @@ class MUMBLE_CLIENT_EXPORT MumbleClient final {
 
    private:
 	struct Impl;
-	libmumble_protocol::common::Pimpl<Impl> m_pimpl;
+	libmumble_protocol::common::Pimpl<Impl> pimpl_;
 };
 
 }// namespace libmumble_protocol::client

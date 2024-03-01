@@ -69,13 +69,13 @@ enum struct MUMBLE_PROTOCOL_COMMON_EXPORT PacketType : uint16_t {
 };
 
 MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<PacketType, std::span<const std::byte>>
-	parseNetworkBuffer(std::span<const std::byte, kMaxPacketLength>);
+	ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength>);
 
 class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
    public:
 	virtual ~MumbleControlPacket() = default;
 
-	[[nodiscard]] std::vector<std::byte> serialize() const;
+	[[nodiscard]] std::vector<std::byte> Serialize() const;
 
 	[[nodiscard]] std::string debugString() const;
 
@@ -111,17 +111,17 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlP
 
 	~MumbleVersionPacket() override = default;
 
-	std::uint16_t majorVersion() const { return m_numericVersion.major; }
+	std::uint16_t majorVersion() const { return numericVersion_.major; }
 
-	std::uint8_t minorVersion() const { return m_numericVersion.minor; }
+	std::uint8_t minorVersion() const { return numericVersion_.minor; }
 
-	std::uint8_t patchVersion() const { return m_numericVersion.patch; }
+	std::uint8_t patchVersion() const { return numericVersion_.patch; }
 
-	std::string_view release() const { return m_version.release(); }
+	std::string_view release() const { return version_.release(); }
 
-	std::string_view operatingSystem() const { return m_version.os(); }
+	std::string_view operatingSystem() const { return version_.os(); }
 
-	std::string_view operatingSystemVersion() const { return m_version.os_version(); }
+	std::string_view operatingSystemVersion() const { return version_.os_version(); }
 
    protected:
 	PacketType packetType() const override;
@@ -129,8 +129,8 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlP
 	google::protobuf::Message const &message() const override;
 
    private:
-	MumbleProto::Version m_version;
-	MumbleNumericVersion m_numericVersion;
+	MumbleProto::Version version_;
+	MumbleNumericVersion numericVersion_;
 };
 
 struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
@@ -142,25 +142,25 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCon
 
 	~MumbleAuthenticatePacket() override = default;
 
-	std::string_view username() const { return m_authenticate.username(); }
+	std::string_view username() const { return authenticate_.username(); }
 
-	std::string_view password() const { return m_authenticate.password(); }
+	std::string_view password() const { return authenticate_.password(); }
 
 	std::vector<std::string_view> tokens() const {
 		std::vector<std::string_view> result;
-		result.reserve(m_authenticate.tokens_size());
-		for (const auto &token : m_authenticate.tokens()) { result.emplace_back(token); }
+		result.reserve(authenticate_.tokens_size());
+		for (const auto &token : authenticate_.tokens()) { result.emplace_back(token); }
 		return result;
 	};
 
 	std::vector<std::int32_t> celtVersions() const {
 		std::vector<std::int32_t> result;
-		result.reserve(m_authenticate.celt_versions_size());
-		for (const auto celtVersion : m_authenticate.celt_versions()) { result.push_back(celtVersion); }
+		result.reserve(authenticate_.celt_versions_size());
+		for (const auto celtVersion : authenticate_.celt_versions()) { result.push_back(celtVersion); }
 		return result;
 	}
 
-	bool opusSupported() const { return m_authenticate.opus(); }
+	bool opusSupported() const { return authenticate_.opus(); }
 
    protected:
 	PacketType packetType() const override;
@@ -168,7 +168,7 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCon
 	google::protobuf::Message const &message() const override;
 
    private:
-	MumbleProto::Authenticate m_authenticate;
+	MumbleProto::Authenticate authenticate_;
 };
 
 struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacket {
@@ -186,7 +186,7 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPack
 	const google::protobuf::Message &message() const override;
 
    private:
-	MumbleProto::Ping m_ping;
+	MumbleProto::Ping ping_;
 };
 
 struct MumbleCryptographySetupPacket : public MumbleControlPacket {
@@ -195,11 +195,11 @@ struct MumbleCryptographySetupPacket : public MumbleControlPacket {
 
 	explicit MumbleCryptographySetupPacket(std::span<const std::byte>);
 
-	std::span<const std::byte> key() const { return as_bytes(std::span(m_cryptSetup.key())); }
+	std::span<const std::byte> key() const { return as_bytes(std::span(cryptSetup_.key())); }
 
-	std::span<const std::byte> clientNonce() const { return as_bytes(std::span(m_cryptSetup.client_nonce())); }
+	std::span<const std::byte> clientNonce() const { return as_bytes(std::span(cryptSetup_.client_nonce())); }
 
-	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(m_cryptSetup.server_nonce())); }
+	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(cryptSetup_.server_nonce())); }
 
    protected:
 	PacketType packetType() const override;
@@ -207,7 +207,7 @@ struct MumbleCryptographySetupPacket : public MumbleControlPacket {
 	const google::protobuf::Message &message() const override;
 
    private:
-	MumbleProto::CryptSetup m_cryptSetup;
+	MumbleProto::CryptSetup cryptSetup_;
 };
 
 }// namespace libmumble_protocol::common

@@ -17,7 +17,7 @@
 
 namespace libmumble_protocol::common {
 
-MUMBLE_PROTOCOL_COMMON_EXPORT auto swapNetworkBytes(std::integral auto const i) {
+MUMBLE_PROTOCOL_COMMON_EXPORT auto SwapNetworkBytes(std::integral auto const i) {
 	if constexpr (std::endian::native == std::endian::little) {
 		return std::byteswap(i);
 	} else {
@@ -26,8 +26,8 @@ MUMBLE_PROTOCOL_COMMON_EXPORT auto swapNetworkBytes(std::integral auto const i) 
 }
 
 MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<std::size_t, std::int64_t>
-decodeVariableInteger(std::span<const std::byte> buffer);
+DecodeVariableInteger(std::span<const std::byte> buffer);
 
-MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t encodeVariableInteger(std::span<std::byte> buffer, std::int64_t value);
+MUMBLE_PROTOCOL_COMMON_EXPORT std::size_t EncodeVariableInteger(std::span<std::byte> buffer, std::int64_t value);
 
 }// namespace libmumble_protocol::common
