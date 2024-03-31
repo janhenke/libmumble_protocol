@@ -1,7 +1,7 @@
 {
   "name": "libmumble-client",
   "version-string": "1.0.0",
-  "builtin-baseline": "38dd6b15ada368740b5047e4282cbd8395228f03",
+  "builtin-baseline": "a34c873a9717a888f58dc05268dea15592c2f0ff",
   "dependencies": [
     {
       "name": "asio",
@@ -28,7 +28,7 @@
     },
     {
       "name": "rtaudio",
-      "version>=": "2021-11-16#2"
+      "version>=": "6.0.1"
     },
     {
       "name": "spdlog",
