@@ -70,14 +70,14 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
    public:
 	virtual ~MumbleControlPacket() = default;
 
-	[[nodiscard]] std::vector<std::byte> Serialize() const;
+	[[nodiscard]] std::size_t Serialize(std::span<std::byte, kMaxPacketLength>) const;
 
-	[[nodiscard]] std::string debugString() const;
+	[[nodiscard]] std::string DebugString() const;
 
    protected:
-	[[nodiscard]] virtual PacketType packetType() const = 0;
+	[[nodiscard]] virtual PacketType PacketType() const = 0;
 
-	[[nodiscard]] virtual google::protobuf::Message const &message() const = 0;
+	[[nodiscard]] virtual google::protobuf::Message const &Message() const = 0;
 };
 
 //
@@ -136,8 +136,8 @@ class MumbleVersion {
 
 class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPacket {
    public:
-	MumbleVersionPacket(MumbleVersion mumble_version, std::string_view release, std::string_view operatingSystem,
-						std::string_view operatingSystemVersion);
+	MumbleVersionPacket(MumbleVersion mumble_version, std::string_view release, std::string_view operating_system,
+						std::string_view operating_system_version);
 
 	explicit MumbleVersionPacket(std::span<const std::byte>);
 
@@ -156,9 +156,9 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPa
 	std::string_view operatingSystemVersion() const { return version_.os_version(); }
 
    protected:
-	PacketType packetType() const override;
+	enum PacketType PacketType() const override;
 
-	google::protobuf::Message const &message() const override;
+	google::protobuf::Message const &Message() const override;
 
    private:
 	MumbleProto::Version version_;
@@ -195,9 +195,9 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCont
 	bool opusSupported() const { return authenticate_.opus(); }
 
    protected:
-	PacketType packetType() const override;
+	enum PacketType PacketType() const override;
 
-	google::protobuf::Message const &message() const override;
+	google::protobuf::Message const &Message() const override;
 
    private:
 	MumbleProto::Authenticate authenticate_;
@@ -208,15 +208,15 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacke
 	explicit MumblePingPacket(std::uint64_t);
 
 	MumblePingPacket(std::uint64_t timestamp, std::uint32_t good, std::uint32_t late, std::uint32_t lost,
-					 std::uint32_t reSync, std::uint32_t udpPackets, std::uint32_t tcpPackets, float udpPingAverage,
-					 float udpPingVariation, float tcpPingAverage, float tcpPingVariation);
+					 std::uint32_t re_sync, std::uint32_t udp_packets, std::uint32_t tcp_packets, float udp_ping_average,
+					 float udp_ping_variation, float tcp_ping_average, float tcp_ping_variation);
 
 	explicit MumblePingPacket(std::span<const std::byte>);
 
    protected:
-	PacketType packetType() const override;
+	enum PacketType PacketType() const override;
 
-	const google::protobuf::Message &message() const override;
+	const google::protobuf::Message &Message() const override;
 
    private:
 	MumbleProto::Ping ping_;
@@ -224,8 +224,8 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacke
 
 class MumbleCryptographySetupPacket : public MumbleControlPacket {
    public:
-	MumbleCryptographySetupPacket(std::span<const std::byte> &key, std::span<const std::byte> &clientNonce,
-								  std::span<const std::byte> &serverNonce);
+	MumbleCryptographySetupPacket(std::span<const std::byte> &key, std::span<const std::byte> &client_nonce,
+								  std::span<const std::byte> &server_nonce);
 
 	explicit MumbleCryptographySetupPacket(std::span<const std::byte>);
 
@@ -236,12 +236,19 @@ class MumbleCryptographySetupPacket : public MumbleControlPacket {
 	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(cryptSetup_.server_nonce())); }
 
    protected:
-	PacketType packetType() const override;
+	enum PacketType PacketType() const override;
 
-	const google::protobuf::Message &message() const override;
+	const google::protobuf::Message &Message() const override;
 
    private:
 	MumbleProto::CryptSetup cryptSetup_;
 };
 
 }// namespace libmumble_protocol::common
+
+template<>
+struct std::formatter<libmumble_protocol::common::PacketType> : public std::formatter<std::uint16_t> {
+	auto format(const libmumble_protocol::common::PacketType &packet_type, std::format_context &ctx) const {
+		return std::formatter<std::uint16_t>::format(static_cast<uint16_t>(packet_type), ctx);
+	}
+};

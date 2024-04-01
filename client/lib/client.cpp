@@ -30,17 +30,19 @@ struct MumbleClient::Impl final {
 	asio::steady_timer ping_timer;
 
 	std::array<std::byte, common::kMaxPacketLength> receive_buffer;
+	std::array<std::byte, common::kMaxPacketLength> send_buffer;
 
 	Impl(std::string_view serverName, uint16_t port, std::string_view userName, bool validateServerCertificate)
 		: tls_context(asio::ssl::context_base::tlsv13_client), tls_socket(io_context, tls_context),
-		  ping_timer(io_context), receive_buffer() {
+		  ping_timer(io_context), receive_buffer(), send_buffer() {
 
 		tls_context.set_default_verify_paths();
 		tls_socket.set_verify_mode(validateServerCertificate ? asio::ssl::verify_peer : asio::ssl::verify_none);
 		tls_socket.set_verify_callback(asio::ssl::host_name_verification(std::string{serverName}));
 
 		asio::ip::tcp::resolver resolver{io_context};
-		const auto &endpoints = resolver.resolve(serverName, std::to_string(port));
+		const std::string service = std::to_string(port);
+		const auto &endpoints = resolver.resolve(serverName, service);
 
 		const auto connectedEndpoint = asio::connect(tls_socket.next_layer(), endpoints);
 		spdlog::debug("Connected to endpoint: {}, port: {}", connectedEndpoint.address().to_string(),
@@ -127,7 +129,10 @@ struct MumbleClient::Impl final {
 	}
 
 	void queuePacket(const common::MumbleControlPacket &packet) {
-		asio::async_write(tls_socket, asio::buffer(packet.Serialize()),
+
+		const std::size_t size = packet.Serialize(send_buffer);
+
+		asio::async_write(tls_socket, asio::buffer(send_buffer, size),
 						  [](const std::error_code &ec, std::size_t bytes_transferred) {
 							  if (ec) {
 								  spdlog::critical("Error writing to socket: {}", ec.message());
@@ -155,7 +160,7 @@ struct MumbleClient::Impl final {
 	static void handleVersionPacket(const std::span<const std::byte> payload) {
 		common::MumbleVersionPacket versionPacket(payload);
 
-		spdlog::debug("Received version packet: \n{}", versionPacket.debugString());
+		spdlog::debug("Received version packet: \n{}", versionPacket.DebugString());
 		spdlog::info("Server version {}.{}.{}", versionPacket.majorVersion(), versionPacket.minorVersion(),
 					 versionPacket.patchVersion());
 	}
@@ -163,13 +168,13 @@ struct MumbleClient::Impl final {
 	static void handlePingPacket(const std::span<const std::byte> payload) {
 		common::MumblePingPacket pingPacket(payload);
 
-		spdlog::debug("Received server ping: \n{}", pingPacket.debugString());
+		spdlog::debug("Received server ping: \n{}", pingPacket.DebugString());
 	}
 
 	static void handleCryptSetupPacket(const std::span<const std::byte> payload) {
 		common::MumbleCryptographySetupPacket cryptographySetupPacket(payload);
 
-		spdlog::debug("Received crypt setup: \n{}", cryptographySetupPacket.debugString());
+		spdlog::debug("Received crypt setup: \n{}", cryptographySetupPacket.DebugString());
 	}
 };
 
