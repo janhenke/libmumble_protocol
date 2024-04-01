@@ -15,7 +15,7 @@ message Audio {
     // is a number in the range [0, 2^{32} - 1], where 0 means "normal talking", 2^{5} - 1 means "server loopback"
     // and all other targets are understood as shout/whisper targets that have previously been registered via a
     // VoiceTarget message (via TCP).
-    uint32 target  = 1;
+    uint32 target = 1;
     // When this audio is sent by the server to the client, this indicates the context in which the audio has been sent.
     // 0: Normal speech
     // 1: Shout to channel

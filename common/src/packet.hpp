@@ -16,11 +16,6 @@
 
 namespace libmumble_protocol::common {
 
-MUMBLE_PROTOCOL_COMMON_EXPORT struct Header {
-	const std::uint16_t packet_type;
-	const std::uint32_t payload_length;
-};
-
 /**
  * Maximum length of the payload part of the packet according to the specification.
  */
@@ -85,37 +80,74 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
 	[[nodiscard]] virtual google::protobuf::Message const &message() const = 0;
 };
 
-struct MumbleNumericVersion {
-	const std::uint16_t major;
-	const std::uint8_t minor;
-	const std::uint8_t patch;
+//
+// The mumble version format (v2) is an uint64:
+// major   minor   patch   reserved/unused
+// 0xFFFF  0xFFFF  0xFFFF  0xFFFF
+// (big-endian)
+//
+class MumbleVersion {
+	std::uint16_t major_;
+	std::uint16_t minor_;
+	std::uint16_t patch_;
 
-	explicit MumbleNumericVersion(const std::uint32_t numeric_version)
-		: major(((numeric_version >> 24) & 0xff) | ((numeric_version >> 16) & 0xff)),
-		  minor((numeric_version >> 8) & 0xff), patch(numeric_version & 0xff){};
+   public:
+	MumbleVersion() : major_(0), minor_(0), patch_(0) {}
 
-	MumbleNumericVersion(const std::uint16_t major, const std::uint8_t minor, const std::uint8_t patch)
-		: major(major), minor(minor), patch(patch){};
+	MumbleVersion(const std::uint16_t major, const std::uint16_t minor, const std::uint16_t patch)
+		: major_(major), minor_(minor), patch_(patch) {}
 
+	explicit operator std::uint64_t() const {
+		std::uint64_t result = static_cast<std::uint64_t>(major_) << 48;
+		result |= static_cast<std::uint64_t>(minor_) << 32;
+		result |= static_cast<std::uint64_t>(patch_) << 16;
+		return result;
+	}
+
+	//
+	// Legacy versions: These versions are kept around for backward compatibility, but
+	// have since been replaced by other version formats.
+	//
+	// Mumble legacy version format (v1) is an uint32:
+	// major   minor  patch
+	// 0xFFFF  0xFF   0xFF
+	// (big-endian)
+	//
 	explicit operator std::uint32_t() const {
-		return (major >> 8 & 0xff) << 24 | (major & 0xff) << 16 | minor << 8 | patch;
+		std::uint32_t result = (static_cast<std::uint32_t>(major_) << 16);
+		result |= (std::min(static_cast<std::uint32_t>(minor_),
+							static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max()))
+				   << 8);
+		result |= (std::min(static_cast<std::uint32_t>(patch_),
+							static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max())));
+		return result;
+	}
+
+	[[nodiscard]] std::uint16_t major() const { return major_; }
+	[[nodiscard]] std::uint16_t minor() const { return minor_; }
+	[[nodiscard]] std::uint16_t patch() const { return patch_; }
+
+	void parse(const std::uint64_t version) {
+		major_ = static_cast<std::uint16_t>((version & 0xffff'0000'0000'0000) >> 48);
+		minor_ = static_cast<std::uint16_t>((version & 0xffff'0000'0000) >> 32);
+		patch_ = static_cast<std::uint16_t>((version & 0xffff'0000) >> 16);
 	}
 };
 
-struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPacket {
-	MumbleVersionPacket(std::uint16_t majorVersion, std::uint8_t minorVersion, std::uint8_t patchVersion,
-						std::string_view release, std::string_view operatingSystem,
+class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPacket {
+   public:
+	MumbleVersionPacket(MumbleVersion mumble_version, std::string_view release, std::string_view operatingSystem,
 						std::string_view operatingSystemVersion);
 
 	explicit MumbleVersionPacket(std::span<const std::byte>);
 
 	~MumbleVersionPacket() override = default;
 
-	std::uint16_t majorVersion() const { return numericVersion_.major; }
+	std::uint16_t majorVersion() const { return mumbleVersion_.major(); }
 
-	std::uint8_t minorVersion() const { return numericVersion_.minor; }
+	std::uint16_t minorVersion() const { return mumbleVersion_.minor(); }
 
-	std::uint8_t patchVersion() const { return numericVersion_.patch; }
+	std::uint16_t patchVersion() const { return mumbleVersion_.patch(); }
 
 	std::string_view release() const { return version_.release(); }
 
@@ -130,13 +162,13 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlP
 
    private:
 	MumbleProto::Version version_;
-	MumbleNumericVersion numericVersion_;
+	MumbleVersion mumbleVersion_;
 };
 
-struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
+   public:
 	MumbleAuthenticatePacket(std::string_view username, std::string_view password,
-							 const std::vector<std::string_view> &tokens, const std::vector<std::int32_t> &celtVersions,
-							 bool opusSupported);
+							 const std::vector<std::string_view> &tokens);
 
 	explicit MumbleAuthenticatePacket(std::span<const std::byte>);
 
@@ -171,7 +203,8 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCon
 	MumbleProto::Authenticate authenticate_;
 };
 
-struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacket {
+   public:
 	explicit MumblePingPacket(std::uint64_t);
 
 	MumblePingPacket(std::uint64_t timestamp, std::uint32_t good, std::uint32_t late, std::uint32_t lost,
@@ -189,7 +222,8 @@ struct MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPack
 	MumbleProto::Ping ping_;
 };
 
-struct MumbleCryptographySetupPacket : public MumbleControlPacket {
+class MumbleCryptographySetupPacket : public MumbleControlPacket {
+   public:
 	MumbleCryptographySetupPacket(std::span<const std::byte> &key, std::span<const std::byte> &clientNonce,
 								  std::span<const std::byte> &serverNonce);
 

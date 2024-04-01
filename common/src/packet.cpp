@@ -10,29 +10,34 @@
 #include <ranges>
 #include <string>
 
+#include <spdlog/spdlog.h>
+
 namespace libmumble_protocol::common {
 
 std::tuple<PacketType, std::span<const std::byte>>
 ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength> buffer) {
 
-	const auto header = std::bit_cast<Header>(buffer.subspan<kHeaderLength>());
+	std::uint16_t rawPacketType;
+	std::uint32_t payloadLength;
 
-	const auto packetType = static_cast<PacketType>(SwapNetworkBytes(header.packet_type));
-	const auto payloadLength = SwapNetworkBytes(header.payload_length);
+	std::memcpy(&rawPacketType, buffer.data(), sizeof(rawPacketType));
+	std::memcpy(&payloadLength, buffer.data() + sizeof(rawPacketType), sizeof(payloadLength));
 
-	return {packetType, buffer.subspan(kHeaderLength, payloadLength)};
+	return {static_cast<PacketType>(SwapNetworkBytes(rawPacketType)),
+			buffer.subspan(kHeaderLength, SwapNetworkBytes(payloadLength))};
 }
 
 std::vector<std::byte> MumbleControlPacket::Serialize() const {
 
 	const auto &message = this->message();
 	const std::size_t payloadBytes = message.ByteSizeLong();
-	const Header header{SwapNetworkBytes(std::to_underlying(this->packetType())),
-						static_cast<uint32_t>(SwapNetworkBytes(payloadBytes))};
+	const auto packetType = SwapNetworkBytes(std::to_underlying(this->packetType()));
+	const auto payloadLength = static_cast<uint32_t>(SwapNetworkBytes(payloadBytes));
 
 	std::vector<std::byte> buffer(kHeaderLength + payloadBytes);
 	std::byte *data = buffer.data();
-	std::memcpy(data, &header, kHeaderLength);
+	std::memcpy(data, &packetType, sizeof(packetType));
+	std::memcpy(data + sizeof(packetType), &payloadLength, sizeof(payloadLength));
 	message.SerializeToArray(data + kHeaderLength, static_cast<int>(payloadBytes));
 
 	return buffer;
@@ -41,22 +46,22 @@ std::vector<std::byte> MumbleControlPacket::Serialize() const {
 std::string MumbleControlPacket::debugString() const { return message().DebugString(); }
 
 /*
- * Mumble version packet (ID 0)
+ * Mumble version_ packet (ID 0)
  */
 
-MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer) : version_(), numericVersion_(0) {
+MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer) : version_(), mumbleVersion_() {
 	const auto bufferSize = std::size(buffer);
 	version_.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
-	// replace instance with the value from the package, cannot assign because of const members
-	std::construct_at(&numericVersion_, version_.version_v1());
+	mumbleVersion_.parse(version_.version_v2());
 }
 
-MumbleVersionPacket::MumbleVersionPacket(const std::uint16_t majorVersion, const std::uint8_t minorVersion,
-										 const std::uint8_t patchVersion, const std::string_view release,
+MumbleVersionPacket::MumbleVersionPacket(const MumbleVersion mumble_version, const std::string_view release,
 										 const std::string_view operatingSystem,
 										 const std::string_view operatingSystemVersion)
-	: version_(), numericVersion_(majorVersion, minorVersion, patchVersion) {
-	version_.set_version_v1(static_cast<std::uint32_t>(numericVersion_));
+	: version_(), mumbleVersion_(mumble_version) {
+
+	version_.set_version_v1(static_cast<std::uint32_t>(mumbleVersion_));
+	version_.set_version_v2(static_cast<std::uint64_t>(mumbleVersion_));
 	version_.set_release(std::string(release));
 	version_.set_os(std::string(operatingSystem));
 	version_.set_os_version(std::string(operatingSystemVersion));
@@ -68,19 +73,16 @@ google::protobuf::Message const &MumbleVersionPacket::message() const { return v
 /*
  * Mumble authenticate packet (ID 2)
  */
-
 MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::string_view username, std::string_view password,
-												   const std::vector<std::string_view> &tokens,
-												   const std::vector<std::int32_t> &celtVersions, bool opusSupported) {
+												   const std::vector<std::string_view> &tokens) {
 	authenticate_.set_username(std::string(username));
 	authenticate_.set_password(std::string(password));
 	for (const auto [index, token] : std::views::enumerate(tokens)) {
 		authenticate_.set_tokens(static_cast<int>(index), std::string(token));
 	}
-	for (const auto [index, celtVersion] : std::views::enumerate(celtVersions)) {
-		authenticate_.set_celt_versions(static_cast<int>(index), celtVersion);
-	}
-	authenticate_.set_opus(opusSupported);
+	// only opus is supported
+	// not setting any supported CELT versions
+	authenticate_.set_opus(true);
 }
 
 MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::span<const std::byte> buffer) {

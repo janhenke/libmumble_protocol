@@ -65,9 +65,9 @@ struct MumbleClient::Impl final {
 
 		// begin Mumble handshake protocol
 		// TODO: Replace with real values, for not these are only placeholders
-		queuePacket(common::MumbleVersionPacket(1, 3, 4, "1.3.4", "Linux", "5.4.32"));
+		queuePacket(common::MumbleVersionPacket({1, 4, 287}, "1.4.287", "Linux", "5.4.32"));
 
-		queuePacket(common::MumbleAuthenticatePacket(userName, "", {}, {}, true));
+		queuePacket(common::MumbleAuthenticatePacket(userName, "", {}));
 
 		io_thread = std::thread{&asio::io_context::run, &io_context};
 	}
@@ -156,6 +156,8 @@ struct MumbleClient::Impl final {
 		common::MumbleVersionPacket versionPacket(payload);
 
 		spdlog::debug("Received version packet: \n{}", versionPacket.debugString());
+		spdlog::info("Server version {}.{}.{}", versionPacket.majorVersion(), versionPacket.minorVersion(),
+					 versionPacket.patchVersion());
 	}
 
 	static void handlePingPacket(const std::span<const std::byte> payload) {
