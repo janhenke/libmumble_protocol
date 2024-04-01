@@ -1,7 +1,7 @@
 {
   "name": "libmumble-client",
   "version-string": "1.0.0",
-  "builtin-baseline": "a34c873a9717a888f58dc05268dea15592c2f0ff",
+  "builtin-baseline": "fba75d09065fcc76a25dcf386b1d00d33f5175af",
   "dependencies": [
     {
       "name": "asio",
