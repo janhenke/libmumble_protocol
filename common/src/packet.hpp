@@ -75,7 +75,7 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
 	[[nodiscard]] std::string DebugString() const;
 
    protected:
-	[[nodiscard]] virtual PacketType PacketType() const = 0;
+	[[nodiscard]] virtual enum PacketType PacketType() const = 0;
 
 	[[nodiscard]] virtual google::protobuf::Message const &Message() const = 0;
 };
