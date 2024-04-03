@@ -60,6 +60,13 @@ add_executable(
         mumble_client_app
         app/main.cpp
 )
+if (WIN32)
+    target_sources(
+            mumble_client_app
+            PUBLIC
+            app/application.manifest
+    )
+endif ()
 
 set_target_properties(
         mumble_client_app
