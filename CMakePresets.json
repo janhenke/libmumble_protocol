@@ -1,0 +1,341 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 27,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "vcpkg",
+      "description": "Use vcpkg for dependency management",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+          "type": "FILEPATH"
+        }
+      }
+    },
+    {
+      "name": "warnings-error",
+      "description": "Change all compiler warnings to errors",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_COMPILE_WARNING_AS_ERROR": "ON"
+      }
+    },
+    {
+      "name": "verbose-build",
+      "description": "Make the build script output the full command line that is invoked during building",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_VERBOSE_MAKEFILE": "ON"
+      }
+    },
+    {
+      "name": "ninja",
+      "displayName": "Ninja",
+      "description": "build using Ninja generator",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "hidden": true,
+      "inherits": [
+        "vcpkg"
+      ]
+    },
+    {
+      "name": "msbuild",
+      "displayName": "MS Build",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "hidden": true,
+      "inherits": [
+        "vcpkg"
+      ]
+    },
+    {
+      "name": "clang",
+      "displayName": "Clang",
+      "description": "LLVM Clang",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_C_FLAGS": "-Wall -Wextra -Wpedantic",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic"
+      }
+    },
+    {
+      "name": "gcc",
+      "displayName": "GCC",
+      "description": "GNU Compiler Collection",
+      "hidden": true,
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc",
+        "CMAKE_CXX_COMPILER": "g++",
+        "CMAKE_C_FLAGS": "-Wall -Wextra -Wpedantic",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic"
+      }
+    },
+    {
+      "name": "clang-cl",
+      "displayName": "ClangCL",
+      "description": "LLVM Clang driver for Microsoft Visual C++",
+      "hidden": true,
+      "toolset": "ClangCL",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "/W4 /utf-8",
+        "CMAKE_CXX_FLAGS": "/W4 /utf-8"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "intelliSenseMode": "windows-clang-x64"
+        }
+      }
+    },
+    {
+      "name": "msvc",
+      "displayName": "MSVC",
+      "description": "Microsoft Visual C++",
+      "hidden": true,
+      "toolset": "v143",
+      "cacheVariables": {
+        "CMAKE_C_FLAGS": "/W4 /utf-8",
+        "CMAKE_CXX_FLAGS": "/W4 /utf-8"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-clang-debug",
+      "displayName": "Ninja Clang Debug",
+      "inherits": [
+        "ninja",
+        "clang",
+        "warnings-error"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-clang-release",
+      "displayName": "Ninja Clang Release",
+      "inherits": [
+        "ninja",
+        "clang"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-gcc-debug",
+      "displayName": "Ninja GCC Debug",
+      "inherits": [
+        "ninja",
+        "gcc",
+        "warnings-error"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-gcc-release",
+      "displayName": "Ninja GCC Release",
+      "inherits": [
+        "ninja",
+        "gcc"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-msvc-debug",
+      "displayName": "MSVC Debug",
+      "inherits": [
+        "msbuild",
+        "msvc",
+        "warnings-error"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-msvc-release",
+      "displayName": "MSVC Release",
+      "inherits": [
+        "msbuild",
+        "msvc"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-clang-cl-debug",
+      "displayName": "ClangCL Debug",
+      "inherits": [
+        "msbuild",
+        "clang-cl",
+        "warnings-error"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-clang-cl-release",
+      "displayName": "ClangCL Release",
+      "inherits": [
+        "msbuild",
+        "clang-cl"
+      ],
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-clang-debug",
+      "displayName": "Ninja Clang Debug",
+      "configurePreset": "ninja-clang-debug",
+      "configuration": "Debug",
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-clang-release",
+      "displayName": "Ninja Clang Release",
+      "configurePreset": "ninja-clang-release",
+      "configuration": "Debug",
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-gcc-debug",
+      "displayName": "Ninja GCC Debug",
+      "configurePreset": "ninja-gcc-debug",
+      "configuration": "Debug",
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "ninja-gcc-release",
+      "displayName": "Ninja GCC Release",
+      "configurePreset": "ninja-gcc-release",
+      "configuration": "Debug",
+      "condition": {
+        "type": "notEquals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-msvc-debug",
+      "displayName": "MSVC Debug",
+      "configurePreset": "msbuild-msvc-debug",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-msvc-release",
+      "displayName": "MSVC Release",
+      "configurePreset": "msbuild-msvc-debug",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-clang-cl-debug",
+      "displayName": "ClangCL Debug",
+      "configurePreset": "msbuild-clang-cl-debug",
+      "configuration": "Debug",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "msbuild-clang-cl-release",
+      "displayName": "ClangCL Release",
+      "configurePreset": "msbuild-clang-cl-debug",
+      "configuration": "Release",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ]
+}

@@ -10,7 +10,7 @@ CTestTestfile.cmake
 
 .idea/
 # CLion build directories
-cmake-build*/
+*build*/
 
 # Visual Studio project files
 .vs/
