@@ -77,14 +77,14 @@ set_target_properties(
 )
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS program_options)
-find_package(Opus CONFIG REQUIRED)
+pkg_check_modules(Opus REQUIRED IMPORTED_TARGET opus)
 find_package(RtAudio CONFIG REQUIRED)
 target_link_libraries(
         mumble_client_app
         PRIVATE mumble_client
         PRIVATE Boost::boost
         PRIVATE Boost::program_options
-        PRIVATE Opus::opus
+        PRIVATE PkgConfig::Opus
         PRIVATE RtAudio::rtaudio
         PRIVATE spdlog::spdlog
 )

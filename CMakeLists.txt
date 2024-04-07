@@ -20,6 +20,7 @@ include(GenerateExportHeader)
 include(CheckIPOSupported)
 # check for LTO support in the compiler
 check_ipo_supported(RESULT LTO_SUPPORTED)
+find_package(PkgConfig REQUIRED)
 
 option(BUILD_CLIENT "Build the client library" ON)
 option(BUILD_SERVER "Build the server library" ON)
