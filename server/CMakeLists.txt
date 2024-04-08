@@ -33,14 +33,6 @@ target_compile_definitions(
         PUBLIC ASIO_NO_DEPRECATED
 )
 
-# enable extra warnings for our code
-target_compile_options(
-        mumble_server
-        PRIVATE
-        $<$<CXX_COMPILER_ID:MSVC>:/W4>
-        $<$<NOT:$<CXX_COMPILER_ID:MSVC>>:-Wall -Wextra -Wpedantic>
-)
-
 find_package(asio CONFIG REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(spdlog CONFIG REQUIRED)

@@ -24,9 +24,9 @@ class Pimpl {
 
 	~Pimpl();
 
-	T *operator->();
+	auto operator->() -> T *;
 
-	T &operator*();
+	auto operator*() -> T &;
 };
 
 }// namespace libmumble_protocol::common

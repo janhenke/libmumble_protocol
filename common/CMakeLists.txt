@@ -19,6 +19,14 @@ protobuf_generate(
 )
 generate_export_header(mumble_protocol_common)
 
+# Disable specific compiler warnings for generated file (because we cannot fix the warnings)
+set_source_files_properties(
+        ${CMAKE_CURRENT_BINARY_DIR}/src/Mumble.pb.cc
+        ${CMAKE_CURRENT_BINARY_DIR}/src/MumbleUDP.pb.cc
+        PROPERTIES
+        COMPILE_FLAGS $<IF:$<CXX_COMPILER_ID:MSVC>,/wd4244,-Wno-error=narrowing>
+)
+
 set_target_properties(
         mumble_protocol_common
         PROPERTIES

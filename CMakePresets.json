@@ -107,7 +107,7 @@
       "toolset": "v143",
       "cacheVariables": {
         "CMAKE_C_FLAGS": "/W4 /utf-8",
-        "CMAKE_CXX_FLAGS": "/W4 /utf-8"
+        "CMAKE_CXX_FLAGS": "/W4 /utf-8 /EHsc"
       },
       "condition": {
         "type": "equals",

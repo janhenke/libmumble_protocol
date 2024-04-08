@@ -22,12 +22,12 @@ template<typename T>
 Pimpl<T>::~Pimpl() = default;
 
 template<typename T>
-T *Pimpl<T>::operator->() {
+auto Pimpl<T>::operator->() -> T * {
 	return m.get();
 }
 
 template<typename T>
-T &Pimpl<T>::operator*() {
+auto Pimpl<T>::operator*() -> T & {
 	return *m.get();
 }
 
