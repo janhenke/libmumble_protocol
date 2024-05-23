@@ -69,8 +69,11 @@ set_target_properties(
 )
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS program_options)
+pkg_check_modules(libpqxx REQUIRED IMPORTED_TARGET libpqxx)
+
 target_link_libraries(
         mumble_server_app
+        PRIVATE PkgConfig::libpqxx
         PRIVATE mumble_server
         PRIVATE Boost::boost
         PRIVATE Boost::program_options

@@ -19,6 +19,10 @@
       "version>=": "3.5.0"
     },
     {
+      "name": "libpqxx",
+      "version>=": "7.9.0"
+    },
+    {
       "name": "opus",
       "version>=": "1.4"
     },

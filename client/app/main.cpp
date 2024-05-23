@@ -37,7 +37,7 @@ auto main(int argc, char *argv[]) -> int {
 	boost::program_options::store(boost::program_options::parse_command_line(argc, argv, description), variablesMap);
 	boost::program_options::notify(variablesMap);
 
-	if (variablesMap.count("help")) {
+	if (variablesMap.count("help") != 0U) {
 		std::cout << description << '\n';
 		return EXIT_SUCCESS;
 	}

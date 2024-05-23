@@ -13,7 +13,6 @@ namespace libmumble_protocol::common {
 
 template<typename T>
 class Pimpl {
-   private:
 	std::unique_ptr<T> m;
 
    public:
