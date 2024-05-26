@@ -2,7 +2,7 @@
 // Created by Jan on 01.01.2024.
 //
 
-#include <client.hpp>
+import mumble_protocol;
 
 #include <boost/program_options.hpp>
 #include <spdlog/spdlog.h>

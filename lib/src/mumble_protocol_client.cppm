@@ -1,23 +1,40 @@
 //
-// Created by Jan on 01.01.2024.
+// Created by JanHe on 26.05.2024.
 //
-
-#include "client.hpp"
-
-#include <asio.hpp>
-#include <asio/ssl.hpp>
-#include <packet.hpp>
-#include <pimpl_impl.hpp>
-#include <spdlog/fmt/bin_to_hex.h>
-#include <spdlog/spdlog.h>
+module;
 
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <thread>
+
+#include <asio.hpp>
+#include <asio/ssl.hpp>
+
+#include <spdlog/fmt/bin_to_hex.h>
+#include <spdlog/spdlog.h>
+
+export module mumble_protocol:client;
+
+import :packet;
+import :utility;
 
 namespace libmumble_protocol::client {
 
 using namespace std::chrono_literals;
+
+export class MumbleClient final {
+public:
+	static constexpr std::uint16_t defaultPort = 64738;
+
+	MumbleClient(std::string_view serverName, std::uint16_t port, std::string_view userName,
+				 bool validateServerCertificate = true);
+	~MumbleClient();
+
+private:
+	struct Impl;
+	Pimpl<Impl> pimpl_;
+};
 
 struct MumbleClient::Impl final {
 	static constexpr auto ping_period = 20s;
@@ -181,9 +198,7 @@ struct MumbleClient::Impl final {
 MumbleClient::MumbleClient(std::string_view serverName, uint16_t port, std::string_view userName,
 						   bool validateServerCertificate)
 	: pimpl_(serverName, port, userName, validateServerCertificate) {
-	// Verify that the version of the library that we linked against is
-	// compatible with the version of the headers we compiled against.
-	GOOGLE_PROTOBUF_VERIFY_VERSION;
+	common::AssertProtbufferRuntimeVersion();
 }
 
 MumbleClient::~MumbleClient() = default;

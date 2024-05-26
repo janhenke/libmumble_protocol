@@ -2,7 +2,7 @@
 // Created by jan on 30.12.23.
 //
 
-#include <util.hpp>
+import mumble_protocol;
 
 #include <array>
 

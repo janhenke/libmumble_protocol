@@ -1,17 +1,48 @@
 //
-// Created by JanHe on 03.04.2024.
+// Created by JanHe on 26.05.2024.
 //
+module;
 
-#include "server.hpp"
-
-#include <pimpl_impl.hpp>
-
-#include <asio.hpp>
-
+#include <cstdint>
+#include <filesystem>
 #include <thread>
 #include <vector>
 
+#include <asio.hpp>
+#include <asio/ssl.hpp>
+
+export module mumble_protocol:server;
+
+import :utility;
+
 namespace libmumble_protocol::server {
+
+export class ServerStatePersistence {
+public:
+	virtual ~ServerStatePersistence() = default;
+
+protected:
+	virtual void dummy() = 0;
+};
+
+export class  MumbleServer final {
+public:
+	static constexpr std::uint16_t defaultPort = 64738;
+
+	MumbleServer(ServerStatePersistence &server_state_persistance, const std::filesystem::path &certificate,
+				 const std::filesystem::path &key_file, std::uint16_t concurrency = 0);
+	MumbleServer(const MumbleServer &other) = delete;
+	MumbleServer(MumbleServer &&other) noexcept = delete;
+
+	auto operator=(const MumbleServer &other) -> MumbleServer & = delete;
+	auto operator=(MumbleServer &&other) noexcept -> MumbleServer & = delete;
+
+	~MumbleServer();
+
+private:
+	struct Impl;
+	Pimpl<Impl> pimpl_;
+};
 
 struct MumbleServer::Impl final {
 

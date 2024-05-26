@@ -6,7 +6,7 @@
 #include <iostream>
 #include <string_view>
 
-#include <server.hpp>
+import mumble_protocol;
 
 #include <boost/program_options.hpp>
 #include <pqxx/pqxx>

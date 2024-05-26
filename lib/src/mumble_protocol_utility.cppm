@@ -1,19 +1,54 @@
 //
-// Created by jan on 30.12.23.
+// Created by JanHe on 26.05.2024.
 //
-
-#include "util.hpp"
+module;
 
 #include <array>
 #include <bit>
+#include <concepts>
 #include <cstddef>
+#include <cstdint>
 #include <cstring>
+#include <expected>
+#include <memory>
+#include <span>
 #include <stdexcept>
+#include <string>
+#include <tuple>
 
-namespace libmumble_protocol::common {
+export module mumble_protocol:utility;
 
-std::expected<std::tuple<std::size_t, std::int64_t>, std::u8string>
-DecodeVariableInteger(std::span<const std::byte> buffer) {
+namespace libmumble_protocol {
+
+export template<typename T>
+class Pimpl {
+	std::unique_ptr<T> m;
+
+   public:
+	Pimpl() : m(new T{}) {}
+
+	template<typename... Args>
+	explicit Pimpl(Args &&...args) : m{new T{std::forward<Args>(args)...}} {}
+
+	~Pimpl() = default;
+
+	auto operator->() -> T * { return m.get(); }
+
+	auto operator*() -> T & { return *m.get(); }
+};
+
+namespace common {
+
+auto SwapNetworkBytes(std::integral auto const integral) {
+	if constexpr (std::endian::native == std::endian::little) {
+		return std::byteswap(integral);
+	} else {
+		return integral;
+	}
+}
+
+export auto DecodeVariableInteger(std::span<const std::byte> buffer)
+	-> std::expected<std::tuple<std::size_t, std::int64_t>, std::u8string> {
 
 	const std::size_t spanSize = std::size(buffer);
 
@@ -65,7 +100,8 @@ DecodeVariableInteger(std::span<const std::byte> buffer) {
 	return {{0, 0}};
 }
 
-std::expected<std::size_t, std::u8string> EncodeVariableInteger(std::span<std::byte> buffer, std::int64_t value) {
+export auto EncodeVariableInteger(std::span<std::byte> buffer, std::int64_t value)
+	-> std::expected<std::size_t, std::u8string> {
 
 	if (buffer.empty()) { std::unexpected{u8"Invalid range specified."}; }
 
@@ -130,4 +166,5 @@ std::expected<std::size_t, std::u8string> EncodeVariableInteger(std::span<std::b
 	}
 }
 
-}// namespace libmumble_protocol::common
+}// namespace common
+}// namespace libmumble_protocol

@@ -33,7 +33,7 @@ if (${BUILD_TEST})
 	include(Catch)
 endif ()
 
-add_subdirectory(common)
+add_subdirectory(lib)
 
 if (${BUILD_CLIENT})
 	add_subdirectory(client)
