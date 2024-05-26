@@ -20,7 +20,6 @@ set_target_properties(
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS program_options)
 find_package(libpqxx CONFIG REQUIRED)
-find_package(OpenSSL CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
 target_link_libraries(
@@ -29,7 +28,5 @@ target_link_libraries(
         PRIVATE Boost::boost
         PRIVATE Boost::program_options
         PRIVATE libpqxx::pqxx
-        PRIVATE OpenSSL::SSL
-        PRIVATE OpenSSL::Crypto
         PRIVATE spdlog::spdlog
 )

@@ -19,7 +19,6 @@ set_target_properties(
 )
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS program_options)
-find_package(OpenSSL CONFIG REQUIRED)
 pkg_check_modules(Opus REQUIRED IMPORTED_TARGET opus)
 find_package(RtAudio CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
@@ -29,8 +28,6 @@ target_link_libraries(
         PRIVATE mumble_protocol
         PRIVATE Boost::boost
         PRIVATE Boost::program_options
-        PRIVATE OpenSSL::SSL
-        PRIVATE OpenSSL::Crypto
         PRIVATE PkgConfig::Opus
         PRIVATE RtAudio::rtaudio
         PRIVATE spdlog::spdlog

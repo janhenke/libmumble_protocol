@@ -1,4 +1,5 @@
 # mumble_packet
+find_package(OpenSSL CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
@@ -62,7 +63,9 @@ endif ()
 
 target_link_libraries(
         mumble_protocol
-        PUBLIC protobuf::libprotobuf
+        PRIVATE OpenSSL::SSL
+        PRIVATE OpenSSL::Crypto
+        PRIVATE protobuf::libprotobuf
         PUBLIC Threads::Threads
 )
 
