@@ -20,13 +20,16 @@ set_target_properties(
 
 find_package(Boost ${BOOST_REQUIRED_VERSION} REQUIRED COMPONENTS program_options)
 pkg_check_modules(libpqxx REQUIRED IMPORTED_TARGET libpqxx)
+find_package(OpenSSL CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 
 target_link_libraries(
         mumble_server
         PRIVATE mumble_protocol
-        PRIVATE PkgConfig::libpqxx
         PRIVATE Boost::boost
         PRIVATE Boost::program_options
+        PRIVATE PkgConfig::libpqxx
+        PRIVATE OpenSSL::SSL
+        PRIVATE OpenSSL::Crypto
         PRIVATE spdlog::spdlog
 )

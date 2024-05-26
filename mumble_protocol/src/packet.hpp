@@ -63,21 +63,21 @@ enum struct MUMBLE_PROTOCOL_EXPORT PacketType : uint16_t {
 	SuggestConfig = 25
 };
 
-MUMBLE_PROTOCOL_EXPORT std::tuple<PacketType, std::span<const std::byte> >
-ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength>);
+MUMBLE_PROTOCOL_EXPORT auto ParseNetworkBuffer(
+	std::span<const std::byte, kMaxPacketLength>) -> std::tuple<PacketType, std::span<const std::byte>>;
 
 class MUMBLE_PROTOCOL_EXPORT MumbleControlPacket {
 public:
 	virtual ~MumbleControlPacket() = default;
 
-	[[nodiscard]] std::size_t Serialize(std::span<std::byte, kMaxPacketLength>) const;
+	[[nodiscard]] auto Serialize(std::span<std::byte, kMaxPacketLength>) const -> std::size_t;
 
-	[[nodiscard]] std::string DebugString() const;
+	[[nodiscard]] auto DebugString() const -> std::string;
 
 protected:
-	[[nodiscard]] virtual enum PacketType PacketType() const = 0;
+	[[nodiscard]] virtual auto PacketType() const -> PacketType = 0;
 
-	[[nodiscard]] virtual google::protobuf::Message const& Message() const = 0;
+	[[nodiscard]] virtual auto Message() const -> google::protobuf::Message const& = 0;
 };
 
 //
@@ -122,9 +122,9 @@ public:
 		return result;
 	}
 
-	[[nodiscard]] std::uint16_t major() const { return major_; }
-	[[nodiscard]] std::uint16_t minor() const { return minor_; }
-	[[nodiscard]] std::uint16_t patch() const { return patch_; }
+	[[nodiscard]] auto major() const { return major_; }
+	[[nodiscard]] auto minor() const { return minor_; }
+	[[nodiscard]] auto patch() const { return patch_; }
 
 	void parse(const std::uint64_t version) {
 		major_ = static_cast<std::uint16_t>((version & 0xffff'0000'0000'0000) >> 48);
@@ -133,76 +133,90 @@ public:
 	}
 };
 
-class MUMBLE_PROTOCOL_EXPORT MumbleVersionPacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_EXPORT MumbleVersionPacket final : public MumbleControlPacket {
 public:
 	MumbleVersionPacket(MumbleVersion mumble_version, std::string_view release, std::string_view operating_system,
 	                    std::string_view operating_system_version);
 
 	explicit MumbleVersionPacket(std::span<const std::byte>);
 
+	MumbleVersionPacket(const MumbleVersionPacket& other) = default;
+	MumbleVersionPacket(MumbleVersionPacket&& other) noexcept = default;
+	auto operator=(const MumbleVersionPacket& other) -> MumbleVersionPacket& = default;
+	auto operator=(MumbleVersionPacket&& other) noexcept -> MumbleVersionPacket& = default;
+
 	~MumbleVersionPacket() override = default;
 
-	std::uint16_t majorVersion() const { return mumbleVersion_.major(); }
+	auto majorVersion() const { return mumbleVersion_.major(); }
 
-	std::uint16_t minorVersion() const { return mumbleVersion_.minor(); }
+	auto minorVersion() const { return mumbleVersion_.minor(); }
 
-	std::uint16_t patchVersion() const { return mumbleVersion_.patch(); }
+	auto patchVersion() const { return mumbleVersion_.patch(); }
 
-	std::string_view release() const { return version_.release(); }
+	auto release() const -> std::string_view { return version_.release(); }
 
-	std::string_view operatingSystem() const { return version_.os(); }
+	auto operatingSystem() const -> std::string_view { return version_.os(); }
 
-	std::string_view operatingSystemVersion() const { return version_.os_version(); }
+	auto operatingSystemVersion() const -> std::string_view { return version_.os_version(); }
 
 protected:
-	enum PacketType PacketType() const override;
+	auto PacketType() const -> enum PacketType override;
 
-	google::protobuf::Message const& Message() const override;
+	auto Message() const -> google::protobuf::Message const& override;
 
 private:
 	MumbleProto::Version version_;
 	MumbleVersion mumbleVersion_;
 };
 
-class MUMBLE_PROTOCOL_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_EXPORT MumbleAuthenticatePacket final : public MumbleControlPacket {
 public:
 	MumbleAuthenticatePacket(std::string_view username, std::string_view password,
 	                         const std::vector<std::string_view>& tokens);
 
 	explicit MumbleAuthenticatePacket(std::span<const std::byte>);
 
+	MumbleAuthenticatePacket(const MumbleAuthenticatePacket& other) = default;
+	MumbleAuthenticatePacket(MumbleAuthenticatePacket&& other) noexcept = default;
+	auto operator=(const MumbleAuthenticatePacket& other) -> MumbleAuthenticatePacket& = default;
+	auto operator=(MumbleAuthenticatePacket&& other) noexcept -> MumbleAuthenticatePacket& = default;
+
 	~MumbleAuthenticatePacket() override = default;
 
-	std::string_view username() const { return authenticate_.username(); }
+	auto username() const -> std::string_view { return authenticate_.username(); }
 
-	std::string_view password() const { return authenticate_.password(); }
+	auto password() const -> std::string_view { return authenticate_.password(); }
 
-	std::vector<std::string_view> tokens() const {
+	auto tokens() const -> std::vector<std::string_view> {
 		std::vector<std::string_view> result;
 		result.reserve(authenticate_.tokens_size());
-		for (const auto& token : authenticate_.tokens()) { result.emplace_back(token); }
+		for (const auto& token : authenticate_.tokens()) {
+			result.emplace_back(token);
+		}
 		return result;
 	};
 
-	std::vector<std::int32_t> celtVersions() const {
+	auto celtVersions() const -> std::vector<std::int32_t> {
 		std::vector<std::int32_t> result;
 		result.reserve(authenticate_.celt_versions_size());
-		for (const auto celtVersion : authenticate_.celt_versions()) { result.push_back(celtVersion); }
+		for (const auto celtVersion : authenticate_.celt_versions()) {
+			result.push_back(celtVersion);
+		}
 		return result;
 	}
 
-	bool opusSupported() const { return authenticate_.opus(); }
+	auto opusSupported() const { return authenticate_.opus(); }
 
 protected:
-	enum PacketType PacketType() const override;
+	auto PacketType() const -> enum PacketType override;
 
-	google::protobuf::Message const& Message() const override;
+	auto Message() const -> google::protobuf::Message const& override;
 
 private:
 	MumbleProto::Authenticate authenticate_;
 };
 
-class MUMBLE_PROTOCOL_EXPORT MumblePingPacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_EXPORT MumblePingPacket final : public MumbleControlPacket {
 public:
 	explicit MumblePingPacket(std::uint64_t);
 
@@ -214,31 +228,37 @@ public:
 	explicit MumblePingPacket(std::span<const std::byte>);
 
 protected:
-	enum PacketType PacketType() const override;
+	auto PacketType() const -> enum PacketType override;
 
-	const google::protobuf::Message& Message() const override;
+	auto Message() const -> const google::protobuf::Message& override;
 
 private:
 	MumbleProto::Ping ping_;
 };
 
-class MumbleCryptographySetupPacket : public MumbleControlPacket {
+class MUMBLE_PROTOCOL_EXPORT MumbleCryptographySetupPacket final : public MumbleControlPacket {
 public:
 	MumbleCryptographySetupPacket(std::span<const std::byte>& key, std::span<const std::byte>& client_nonce,
 	                              std::span<const std::byte>& server_nonce);
 
 	explicit MumbleCryptographySetupPacket(std::span<const std::byte>);
 
-	std::span<const std::byte> key() const { return as_bytes(std::span(cryptSetup_.key())); }
+	auto key() const -> std::span<const std::byte> {
+		return as_bytes(std::span(cryptSetup_.key()));
+	}
 
-	std::span<const std::byte> clientNonce() const { return as_bytes(std::span(cryptSetup_.client_nonce())); }
+	auto clientNonce() const -> std::span<const std::byte> {
+		return as_bytes(std::span(cryptSetup_.client_nonce()));
+	}
 
-	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(cryptSetup_.server_nonce())); }
+	auto serverNonce() const -> std::span<const std::byte> {
+		return as_bytes(std::span(cryptSetup_.server_nonce()));
+	}
 
 protected:
-	enum PacketType PacketType() const override;
+	auto PacketType() const -> enum PacketType override;
 
-	const google::protobuf::Message& Message() const override;
+	auto Message() const -> const google::protobuf::Message& override;
 
 private:
 	MumbleProto::CryptSetup cryptSetup_;
@@ -247,7 +267,7 @@ private:
 } // namespace libmumble_protocol
 
 template <>
-struct std::formatter<libmumble_protocol::PacketType> : public std::formatter<std::uint16_t> {
+struct std::formatter<libmumble_protocol::PacketType> : std::formatter<std::uint16_t> {
 	auto format(const libmumble_protocol::PacketType& packet_type, std::format_context& ctx) const {
 		return std::formatter<std::uint16_t>::format(static_cast<uint16_t>(packet_type), ctx);
 	}

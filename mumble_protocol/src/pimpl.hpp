@@ -19,7 +19,13 @@ public:
 	Pimpl();
 
 	template <typename... Args>
-	Pimpl(Args&&...);
+	explicit Pimpl(Args&&...);
+
+	Pimpl(const Pimpl& other) = delete;
+	Pimpl(Pimpl&& other) noexcept = default;
+
+	auto operator=(const Pimpl& other) -> Pimpl& = delete;
+	auto operator=(Pimpl&& other) noexcept -> Pimpl& = default;
 
 	~Pimpl();
 

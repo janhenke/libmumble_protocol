@@ -30,11 +30,9 @@ public:
 	             const std::filesystem::path& key_file, std::uint16_t concurrency = 0);
 
 	MumbleServer(const MumbleServer& other) = delete;
-
 	MumbleServer(MumbleServer&& other) noexcept = delete;
 
 	auto operator=(const MumbleServer& other) -> MumbleServer& = delete;
-
 	auto operator=(MumbleServer&& other) noexcept -> MumbleServer& = delete;
 
 	~MumbleServer();

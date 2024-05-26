@@ -23,6 +23,12 @@ public:
 	MumbleClient(std::string_view serverName, std::uint16_t port, std::string_view userName,
 	             bool validateServerCertificate = true);
 
+	MumbleClient(const MumbleClient& other) = delete;
+	MumbleClient(MumbleClient&& other) noexcept = delete;
+
+	auto operator=(const MumbleClient& other) -> MumbleClient& = delete;
+	auto operator=(MumbleClient&& other) noexcept -> MumbleClient& = delete;
+
 	~MumbleClient();
 
 private:

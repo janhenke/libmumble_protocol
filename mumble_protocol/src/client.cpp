@@ -71,7 +71,7 @@ struct MumbleClient::Impl final {
 
 		queuePacket(MumbleAuthenticatePacket(userName, "", {}));
 
-		io_thread = std::thread{&asio::io_context::run, &io_context};
+		io_thread = std::thread{[this] { io_context.run(); }};
 	}
 
 	~Impl() {

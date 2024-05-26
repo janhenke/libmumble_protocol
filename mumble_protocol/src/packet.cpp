@@ -14,8 +14,8 @@
 
 namespace libmumble_protocol {
 
-std::tuple<PacketType, std::span<const std::byte> >
-ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength> buffer) {
+auto ParseNetworkBuffer(
+	std::span<const std::byte, kMaxPacketLength> buffer) -> std::tuple<PacketType, std::span<const std::byte>> {
 
 	std::uint16_t raw_packet_type;
 	std::uint32_t payload_length;
@@ -27,7 +27,7 @@ ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength> buffer) {
 	        buffer.subspan(kHeaderLength, SwapNetworkBytes(payload_length))};
 }
 
-std::size_t MumbleControlPacket::Serialize(std::span<std::byte, kMaxPacketLength> buffer) const {
+auto MumbleControlPacket::Serialize(std::span<std::byte, kMaxPacketLength> buffer) const -> std::size_t {
 
 	const auto& message = this->Message();
 	const std::size_t payload_bytes = message.ByteSizeLong();
@@ -43,13 +43,13 @@ std::size_t MumbleControlPacket::Serialize(std::span<std::byte, kMaxPacketLength
 	return total_length;
 }
 
-std::string MumbleControlPacket::DebugString() const { return Message().DebugString(); }
+auto MumbleControlPacket::DebugString() const -> std::string { return Message().DebugString(); }
 
 /*
  * Mumble version_ packet (ID 0)
  */
 
-MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer) : version_(), mumbleVersion_() {
+MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer) {
 	const auto bufferSize = std::size(buffer);
 	version_.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 	mumbleVersion_.parse(version_.version_v2());
@@ -58,7 +58,7 @@ MumbleVersionPacket::MumbleVersionPacket(const std::span<const std::byte> buffer
 MumbleVersionPacket::MumbleVersionPacket(const MumbleVersion mumble_version, const std::string_view release,
                                          const std::string_view operating_system,
                                          const std::string_view operating_system_version)
-	: version_(), mumbleVersion_(mumble_version) {
+	: mumbleVersion_(mumble_version) {
 
 	version_.set_version_v1(static_cast<std::uint32_t>(mumbleVersion_));
 	version_.set_version_v2(static_cast<std::uint64_t>(mumbleVersion_));
@@ -67,8 +67,8 @@ MumbleVersionPacket::MumbleVersionPacket(const MumbleVersion mumble_version, con
 	version_.set_os_version(std::string(operating_system_version));
 }
 
-PacketType MumbleVersionPacket::PacketType() const { return PacketType::Version; }
-google::protobuf::Message const& MumbleVersionPacket::Message() const { return version_; }
+auto MumbleVersionPacket::PacketType() const -> enum PacketType { return PacketType::Version; }
+auto MumbleVersionPacket::Message() const -> google::protobuf::Message const& { return version_; }
 
 /*
  * Mumble authenticate packet (ID 2)
@@ -90,8 +90,8 @@ MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::span<const std::byte> bu
 	authenticate_.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 }
 
-PacketType MumbleAuthenticatePacket::PacketType() const { return PacketType::Authenticate; }
-google::protobuf::Message const& MumbleAuthenticatePacket::Message() const { return authenticate_; }
+auto MumbleAuthenticatePacket::PacketType() const -> enum PacketType { return PacketType::Authenticate; }
+auto MumbleAuthenticatePacket::Message() const -> google::protobuf::Message const& { return authenticate_; }
 
 /*
  * Mumble ping packet (ID 3)
@@ -121,8 +121,8 @@ MumblePingPacket::MumblePingPacket(std::span<const std::byte> buffer) {
 	ping_.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 }
 
-PacketType MumblePingPacket::PacketType() const { return PacketType::Ping; }
-const google::protobuf::Message& MumblePingPacket::Message() const { return ping_; }
+auto MumblePingPacket::PacketType() const -> enum PacketType { return PacketType::Ping; }
+auto MumblePingPacket::Message() const -> const google::protobuf::Message& { return ping_; }
 
 /*
  * Mumble crypt setup packet (ID 15)
@@ -159,7 +159,7 @@ MumbleCryptographySetupPacket::MumbleCryptographySetupPacket(std::span<const std
 	cryptSetup_.ParseFromArray(buffer.data(), static_cast<int>(bufferSize));
 }
 
-PacketType MumbleCryptographySetupPacket::PacketType() const { return PacketType::CryptSetup; }
-const google::protobuf::Message& MumbleCryptographySetupPacket::Message() const { return cryptSetup_; }
+auto MumbleCryptographySetupPacket::PacketType() const -> enum PacketType { return PacketType::CryptSetup; }
+auto MumbleCryptographySetupPacket::Message() const -> const google::protobuf::Message& { return cryptSetup_; }
 
 } // namespace libmumble_protocol
