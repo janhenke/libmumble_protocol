@@ -1,6 +1,7 @@
-# mumble_packet
+# mumble_protocol
 find_package(OpenSSL CONFIG REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 find_package(Threads REQUIRED)
 
 add_library(
@@ -66,6 +67,7 @@ target_link_libraries(
         PRIVATE OpenSSL::SSL
         PRIVATE OpenSSL::Crypto
         PRIVATE protobuf::libprotobuf
+        PUBLIC spdlog::spdlog
         PUBLIC Threads::Threads
 )
 
