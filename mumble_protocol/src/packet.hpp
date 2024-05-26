@@ -19,17 +19,17 @@ namespace libmumble_protocol {
 /**
  * Maximum length of the payload part of the packet according to the specification.
  */
-MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kMaxPayloadLength = 8 * 1024 * 1024 - 1;
+constexpr std::size_t kMaxPayloadLength = 8 * 1024 * 1024 - 1;
 
 /**
  * Length of the packet header.
  */
-MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kHeaderLength = 2 + 4;
+constexpr std::size_t kHeaderLength = 2 + 4;
 
 /**
  * Maximum length of the entire packet (header + payload).
  */
-MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kMaxPacketLength = kHeaderLength + kMaxPayloadLength;
+constexpr std::size_t kMaxPacketLength = kHeaderLength + kMaxPayloadLength;
 
 /**
  * All defined packet types.

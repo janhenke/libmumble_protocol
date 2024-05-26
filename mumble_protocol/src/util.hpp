@@ -19,7 +19,7 @@
 
 namespace libmumble_protocol {
 
-MUMBLE_PROTOCOL_EXPORT auto SwapNetworkBytes(std::integral auto const number) {
+auto SwapNetworkBytes(std::integral auto const number) {
 	if constexpr (std::endian::native == std::endian::little) {
 		return std::byteswap(number);
 	} else {
