@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "mumble_client_export.h"
+#include "mumble_protocol_export.h"
 
 #include <pimpl.hpp>
 
@@ -16,19 +16,20 @@
 
 namespace libmumble_protocol::client {
 
-class MUMBLE_CLIENT_EXPORT MumbleClient final {
-   public:
+class MUMBLE_PROTOCOL_EXPORT MumbleClient final {
+public:
 	static constexpr std::uint16_t defaultPort = 64738;
 
 	MumbleClient(std::string_view serverName, std::uint16_t port, std::string_view userName,
-				 bool validateServerCertificate = true);
+	             bool validateServerCertificate = true);
+
 	~MumbleClient();
 
-   private:
+private:
 	struct Impl;
-	libmumble_protocol::common::Pimpl<Impl> pimpl_;
+	Pimpl<Impl> pimpl_;
 };
 
-}// namespace libmumble_protocol::client
+} // namespace libmumble_protocol::client
 
 #endif//LIBMUMBLE_PROTOCOL_CLIENT_HPP

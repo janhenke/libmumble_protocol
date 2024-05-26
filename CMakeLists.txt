@@ -33,7 +33,7 @@ if (${BUILD_TEST})
 	include(Catch)
 endif ()
 
-add_subdirectory(common)
+add_subdirectory(mumble_protocol)
 
 if (${BUILD_CLIENT})
 	add_subdirectory(client)

@@ -3,7 +3,7 @@ find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
 add_library(
-        mumble_protocol_common
+        mumble_protocol
         STATIC
         src/Mumble.proto
         src/MumbleUDP.proto
@@ -13,11 +13,15 @@ add_library(
         src/pimpl_impl.hpp
         src/util.cpp
         src/util.hpp
+        src/client.cpp
+        src/client.hpp
+        src/server.cpp
+        src/server.hpp
 )
 protobuf_generate(
-    TARGET mumble_protocol_common
+        TARGET mumble_protocol
 )
-generate_export_header(mumble_protocol_common)
+generate_export_header(mumble_protocol)
 
 # Disable specific compiler warnings for generated file (because we cannot fix the warnings)
 set_source_files_properties(
@@ -28,7 +32,7 @@ set_source_files_properties(
 )
 
 set_target_properties(
-        mumble_protocol_common
+        mumble_protocol
         PROPERTIES
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
@@ -38,14 +42,22 @@ set_target_properties(
 )
 
 target_include_directories(
-        mumble_protocol_common
+        mumble_protocol
         PUBLIC src
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}
         PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/src
 )
 
+if (WIN32)
+    target_compile_definitions(
+            mumble_protocol
+            PUBLIC
+            _WIN32_WINNT=0x0A00
+    )
+endif ()
+
 target_link_libraries(
-        mumble_protocol_common
+        mumble_protocol
         PUBLIC protobuf::libprotobuf
         PUBLIC Threads::Threads
 )
@@ -53,12 +65,12 @@ target_link_libraries(
 if (${BUILD_TEST})
     # These tests can use the Catch2-provided main
     add_executable(
-            mumble_protocol_common_test
+            mumble_protocol_test
             test/util.cpp
     )
 
     set_target_properties(
-            mumble_protocol_common_test
+            mumble_protocol_test
             PROPERTIES
             CXX_STANDARD 23
             CXX_STANDARD_REQUIRED ON
@@ -66,9 +78,9 @@ if (${BUILD_TEST})
     )
 
     target_link_libraries(
-            mumble_protocol_common_test
-            PRIVATE mumble_protocol_common
+            mumble_protocol_test
+            PRIVATE mumble_protocol
             PRIVATE Catch2::Catch2WithMain
     )
-    catch_discover_tests(mumble_protocol_common_test)
+    catch_discover_tests(mumble_protocol_test)
 endif ()

@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "mumble_protocol_common_export.h"
+#include "mumble_protocol_export.h"
 
 #include "Mumble.pb.h"
 
@@ -14,27 +14,27 @@
 #include <string_view>
 #include <vector>
 
-namespace libmumble_protocol::common {
+namespace libmumble_protocol {
 
 /**
  * Maximum length of the payload part of the packet according to the specification.
  */
-MUMBLE_PROTOCOL_COMMON_EXPORT constexpr std::size_t kMaxPayloadLength = 8 * 1024 * 1024 - 1;
+MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kMaxPayloadLength = 8 * 1024 * 1024 - 1;
 
 /**
  * Length of the packet header.
  */
-MUMBLE_PROTOCOL_COMMON_EXPORT constexpr std::size_t kHeaderLength = 2 + 4;
+MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kHeaderLength = 2 + 4;
 
 /**
  * Maximum length of the entire packet (header + payload).
  */
-MUMBLE_PROTOCOL_COMMON_EXPORT constexpr std::size_t kMaxPacketLength = kHeaderLength + kMaxPayloadLength;
+MUMBLE_PROTOCOL_EXPORT constexpr std::size_t kMaxPacketLength = kHeaderLength + kMaxPayloadLength;
 
 /**
  * All defined packet types.
  */
-enum struct MUMBLE_PROTOCOL_COMMON_EXPORT PacketType : uint16_t {
+enum struct MUMBLE_PROTOCOL_EXPORT PacketType : uint16_t {
 	Version = 0,
 	UDPTunnel = 1,
 	Authenticate = 2,
@@ -63,21 +63,21 @@ enum struct MUMBLE_PROTOCOL_COMMON_EXPORT PacketType : uint16_t {
 	SuggestConfig = 25
 };
 
-MUMBLE_PROTOCOL_COMMON_EXPORT std::tuple<PacketType, std::span<const std::byte>>
-	ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength>);
+MUMBLE_PROTOCOL_EXPORT std::tuple<PacketType, std::span<const std::byte> >
+ParseNetworkBuffer(std::span<const std::byte, kMaxPacketLength>);
 
-class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleControlPacket {
-   public:
+class MUMBLE_PROTOCOL_EXPORT MumbleControlPacket {
+public:
 	virtual ~MumbleControlPacket() = default;
 
 	[[nodiscard]] std::size_t Serialize(std::span<std::byte, kMaxPacketLength>) const;
 
 	[[nodiscard]] std::string DebugString() const;
 
-   protected:
+protected:
 	[[nodiscard]] virtual enum PacketType PacketType() const = 0;
 
-	[[nodiscard]] virtual google::protobuf::Message const &Message() const = 0;
+	[[nodiscard]] virtual google::protobuf::Message const& Message() const = 0;
 };
 
 //
@@ -91,7 +91,7 @@ class MumbleVersion {
 	std::uint16_t minor_;
 	std::uint16_t patch_;
 
-   public:
+public:
 	MumbleVersion() : major_(0), minor_(0), patch_(0) {}
 
 	MumbleVersion(const std::uint16_t major, const std::uint16_t minor, const std::uint16_t patch)
@@ -116,10 +116,9 @@ class MumbleVersion {
 	explicit operator std::uint32_t() const {
 		std::uint32_t result = (static_cast<std::uint32_t>(major_) << 16);
 		result |= (std::min(static_cast<std::uint32_t>(minor_),
-							static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max()))
-				   << 8);
+		                    static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max())) << 8);
 		result |= (std::min(static_cast<std::uint32_t>(patch_),
-							static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max())));
+		                    static_cast<std::uint32_t>(std::numeric_limits<std::uint8_t>::max())));
 		return result;
 	}
 
@@ -134,10 +133,10 @@ class MumbleVersion {
 	}
 };
 
-class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPacket {
-   public:
+class MUMBLE_PROTOCOL_EXPORT MumbleVersionPacket : public MumbleControlPacket {
+public:
 	MumbleVersionPacket(MumbleVersion mumble_version, std::string_view release, std::string_view operating_system,
-						std::string_view operating_system_version);
+	                    std::string_view operating_system_version);
 
 	explicit MumbleVersionPacket(std::span<const std::byte>);
 
@@ -155,20 +154,20 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleVersionPacket : public MumbleControlPa
 
 	std::string_view operatingSystemVersion() const { return version_.os_version(); }
 
-   protected:
+protected:
 	enum PacketType PacketType() const override;
 
-	google::protobuf::Message const &Message() const override;
+	google::protobuf::Message const& Message() const override;
 
-   private:
+private:
 	MumbleProto::Version version_;
 	MumbleVersion mumbleVersion_;
 };
 
-class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
-   public:
+class MUMBLE_PROTOCOL_EXPORT MumbleAuthenticatePacket : public MumbleControlPacket {
+public:
 	MumbleAuthenticatePacket(std::string_view username, std::string_view password,
-							 const std::vector<std::string_view> &tokens);
+	                         const std::vector<std::string_view>& tokens);
 
 	explicit MumbleAuthenticatePacket(std::span<const std::byte>);
 
@@ -181,7 +180,7 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCont
 	std::vector<std::string_view> tokens() const {
 		std::vector<std::string_view> result;
 		result.reserve(authenticate_.tokens_size());
-		for (const auto &token : authenticate_.tokens()) { result.emplace_back(token); }
+		for (const auto& token : authenticate_.tokens()) { result.emplace_back(token); }
 		return result;
 	};
 
@@ -194,38 +193,39 @@ class MUMBLE_PROTOCOL_COMMON_EXPORT MumbleAuthenticatePacket : public MumbleCont
 
 	bool opusSupported() const { return authenticate_.opus(); }
 
-   protected:
+protected:
 	enum PacketType PacketType() const override;
 
-	google::protobuf::Message const &Message() const override;
+	google::protobuf::Message const& Message() const override;
 
-   private:
+private:
 	MumbleProto::Authenticate authenticate_;
 };
 
-class MUMBLE_PROTOCOL_COMMON_EXPORT MumblePingPacket : public MumbleControlPacket {
-   public:
+class MUMBLE_PROTOCOL_EXPORT MumblePingPacket : public MumbleControlPacket {
+public:
 	explicit MumblePingPacket(std::uint64_t);
 
 	MumblePingPacket(std::uint64_t timestamp, std::uint32_t good, std::uint32_t late, std::uint32_t lost,
-					 std::uint32_t re_sync, std::uint32_t udp_packets, std::uint32_t tcp_packets, float udp_ping_average,
-					 float udp_ping_variation, float tcp_ping_average, float tcp_ping_variation);
+	                 std::uint32_t re_sync, std::uint32_t udp_packets, std::uint32_t tcp_packets,
+	                 float udp_ping_average,
+	                 float udp_ping_variation, float tcp_ping_average, float tcp_ping_variation);
 
 	explicit MumblePingPacket(std::span<const std::byte>);
 
-   protected:
+protected:
 	enum PacketType PacketType() const override;
 
-	const google::protobuf::Message &Message() const override;
+	const google::protobuf::Message& Message() const override;
 
-   private:
+private:
 	MumbleProto::Ping ping_;
 };
 
 class MumbleCryptographySetupPacket : public MumbleControlPacket {
-   public:
-	MumbleCryptographySetupPacket(std::span<const std::byte> &key, std::span<const std::byte> &client_nonce,
-								  std::span<const std::byte> &server_nonce);
+public:
+	MumbleCryptographySetupPacket(std::span<const std::byte>& key, std::span<const std::byte>& client_nonce,
+	                              std::span<const std::byte>& server_nonce);
 
 	explicit MumbleCryptographySetupPacket(std::span<const std::byte>);
 
@@ -235,20 +235,20 @@ class MumbleCryptographySetupPacket : public MumbleControlPacket {
 
 	std::span<const std::byte> serverNonce() const { return as_bytes(std::span(cryptSetup_.server_nonce())); }
 
-   protected:
+protected:
 	enum PacketType PacketType() const override;
 
-	const google::protobuf::Message &Message() const override;
+	const google::protobuf::Message& Message() const override;
 
-   private:
+private:
 	MumbleProto::CryptSetup cryptSetup_;
 };
 
-}// namespace libmumble_protocol::common
+} // namespace libmumble_protocol
 
-template<>
-struct std::formatter<libmumble_protocol::common::PacketType> : public std::formatter<std::uint16_t> {
-	auto format(const libmumble_protocol::common::PacketType &packet_type, std::format_context &ctx) const {
+template <>
+struct std::formatter<libmumble_protocol::PacketType> : public std::formatter<std::uint16_t> {
+	auto format(const libmumble_protocol::PacketType& packet_type, std::format_context& ctx) const {
 		return std::formatter<std::uint16_t>::format(static_cast<uint16_t>(packet_type), ctx);
 	}
 };

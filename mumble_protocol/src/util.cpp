@@ -10,7 +10,7 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace libmumble_protocol::common {
+namespace libmumble_protocol {
 
 std::expected<std::tuple<std::size_t, std::int64_t>, std::u8string>
 DecodeVariableInteger(std::span<const std::byte> buffer) {
@@ -59,7 +59,8 @@ DecodeVariableInteger(std::span<const std::byte> buffer) {
 				if (spanSize < 9) { std::unexpected{u8"Input buffer contains too few elements."}; }
 				std::memcpy(&i64, buffer.data() + 1, 8);
 				return {{9, SwapNetworkBytes(i64)}};
-			case 0xfc: return {{1, ~std::bit_cast<std::uint8_t>(buffer[0] & std::byte{0x03})}};
+			case 0xfc:
+				return {{1, ~std::bit_cast<std::uint8_t>(buffer[0] & std::byte{0x03})}};
 		}
 	}
 	return {{0, 0}};
@@ -124,10 +125,10 @@ std::expected<std::size_t, std::u8string> EncodeVariableInteger(std::span<std::b
 		if (buffer.size() < offset + 9) { return std::unexpected{u8"Destination buffer too small."}; }
 		buffer[offset] = std::byte(0xF4);
 		const auto temp = SwapNetworkBytes(static_cast<std::int64_t>(input));
-		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::int64_t)>>(temp);
+		const auto bytes = std::bit_cast<std::array<std::byte, sizeof(std::int64_t)> >(temp);
 		std::memcpy(buffer.data() + offset + 1, bytes.data(), 8);
 		return offset + 9;
 	}
 }
 
-}// namespace libmumble_protocol::common
+} // namespace libmumble_protocol
