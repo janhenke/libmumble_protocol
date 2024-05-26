@@ -4,7 +4,7 @@ find_package(Threads REQUIRED)
 
 add_library(
         mumble_protocol
-        STATIC
+        SHARED
         src/Mumble.proto
         src/MumbleUDP.proto
         src/packet.cpp
@@ -37,8 +37,12 @@ set_target_properties(
         CXX_STANDARD 23
         CXX_STANDARD_REQUIRED ON
         CXX_EXTENSIONS OFF
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN ON
         POSITION_INDEPENDENT_CODE ON
         INTERPROCEDURAL_OPTIMIZATION ${LTO_SUPPORTED}
+        VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}"
+        SOVERSION 0
 )
 
 target_include_directories(

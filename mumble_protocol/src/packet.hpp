@@ -86,7 +86,7 @@ protected:
 // 0xFFFF  0xFFFF  0xFFFF  0xFFFF
 // (big-endian)
 //
-class MumbleVersion {
+class MUMBLE_PROTOCOL_EXPORT MumbleVersion {
 	std::uint16_t major_;
 	std::uint16_t minor_;
 	std::uint16_t patch_;
