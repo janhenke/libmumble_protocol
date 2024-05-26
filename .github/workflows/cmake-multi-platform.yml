@@ -66,6 +66,10 @@ jobs:
         run: |
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
+      - name: Install pkg-config on Windows
+        if: runner.os == 'Windows'
+        run: choco install pkgconfiglite
+
       - name: Configure CMake (Unix)
         if: runner.os != 'Windows'
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
