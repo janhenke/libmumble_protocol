@@ -35,8 +35,6 @@ jobs:
         exclude:
           - os: ubuntu-24.04
             toolchain: LLVM
-            c_compiler: clang-18
-            cpp_compiler: clang++-18
           - os: ubuntu-24.04
             toolchain: MSVC
           - os: windows-latest
