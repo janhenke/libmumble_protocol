@@ -17,7 +17,7 @@ struct MumbleServer::Impl final {
 
 	ServerStatePersistence& persistance;
 
-	std::vector<std::jthread> thread_handles;
+	std::vector<std::thread> thread_handles;
 
 	asio::io_context io_context;
 
@@ -30,7 +30,7 @@ struct MumbleServer::Impl final {
 		(void)key_file;
 
 		const std::uint16_t thread_count =
-			concurrency != 0 ? concurrency : static_cast<std::uint16_t>(std::jthread::hardware_concurrency());
+			concurrency != 0 ? concurrency : static_cast<std::uint16_t>(std::thread::hardware_concurrency());
 		for (std::size_t i = 0; i < thread_count; ++i) {
 			thread_handles.emplace_back([this] { io_context.run(); });
 		}

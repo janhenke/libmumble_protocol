@@ -77,8 +77,8 @@ MumbleAuthenticatePacket::MumbleAuthenticatePacket(std::string_view username, st
                                                    const std::vector<std::string_view>& tokens) {
 	authenticate_.set_username(std::string(username));
 	authenticate_.set_password(std::string(password));
-	for (const auto [index, token] : std::views::enumerate(tokens)) {
-		authenticate_.set_tokens(static_cast<int>(index), std::string(token));
+	for (const auto& token : tokens) {
+		authenticate_.add_tokens(std::string(token));
 	}
 	// only opus is supported
 	// not setting any supported CELT versions
