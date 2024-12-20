@@ -18,27 +18,32 @@ jobs:
       fail-fast: false
 
       matrix:
-        os: [ ubuntu-24.04, windows-latest ]
-        toolchain: [ GNU, LLVM, MSVC ]
-        build_type: [ Debug, Release ]
+        os: [macos-latest, ubuntu-latest, windows-latest]
+        build_type: [ Debug, Release]
         include:
-          - os: ubuntu-24.04
-            toolchain: GNU
-            c_compiler: gcc-14
-            cpp_compiler: g++-14
           - os: windows-latest
-            toolchain: LLVM
-            msvc_toolchain: ClangCL
-          - os: windows-latest
-            toolchain: MSVC
-            msvc_toolchain: v143
+            c_compiler: cl
+            cpp_compiler: cl
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
         exclude:
-          - os: ubuntu-24.04
-            toolchain: LLVM
-          - os: ubuntu-24.04
-            toolchain: MSVC
           - os: windows-latest
-            toolchain: GNU
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
+          - os: macos-latest
+            c_compiler: gcc
+          - os: macos-latest
+            c_compiler: cl
 
     steps:
       - uses: actions/github-script@v6
@@ -47,7 +52,7 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set reusable strings
         # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
@@ -60,8 +65,7 @@ jobs:
         if: runner.os == 'Windows'
         run: choco install pkgconfiglite
 
-      - name: Configure CMake (Linux)
-        if: runner.os == 'Linux'
+      - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
@@ -70,18 +74,6 @@ jobs:
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
-          -S ${{ github.workspace }}
-
-      - name: Configure CMake (Windows)
-        if: runner.os == 'Windows'
-        # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-        # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-        run: >
-          cmake -B ${{ steps.strings.outputs.build-output-dir }}
-          -G "Visual Studio 17 2022"
-          -T ${{ matrix.msvc_toolchain }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
           -S ${{ github.workspace }}
 
       - name: Build
