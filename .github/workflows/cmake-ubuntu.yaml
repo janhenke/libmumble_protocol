@@ -17,8 +17,8 @@ jobs:
       fail-fast: false
 
       matrix:
-        build_type: [Debug, Release]
-        toolchain: [GNU, LLVM]
+        build_type: [ Debug, Release ]
+        toolchain: [ GNU, LLVM ]
         include:
           - toolchain: GNU
             c_compiler: gcc
@@ -28,7 +28,16 @@ jobs:
             cpp_compiler: clang++
 
     steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
       - uses: actions/checkout@v4
+
+      - name: Install ninja
+        run: apt install ninja
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
