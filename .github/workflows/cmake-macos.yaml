@@ -28,6 +28,9 @@ jobs:
         run: >
           cmake -B ${{github.workspace}}/build 
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_C_COMPILER=clang
+          -DCMAKE_CXX_COMPILER=clang++
+          -DCMAKE_MAKE_PROGRAM=`which make`
           -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT\scripts\buildsystems\vcpkg.cmake"
 
       - name: Build
