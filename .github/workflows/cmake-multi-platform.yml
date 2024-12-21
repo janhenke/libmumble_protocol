@@ -20,6 +20,7 @@ jobs:
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
         build_type: [ Debug, Release]
+        c_compiler: [cl, clang, gcc]
         include:
           - os: windows-latest
             c_compiler: cl
